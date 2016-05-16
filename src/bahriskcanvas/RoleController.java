@@ -30,7 +30,7 @@ public class RoleController
 	 * Type HttpSErvletRequest
 	 * @return success(true/false)
 	 */
-	@RequestMapping(value="/role/create",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
+	@RequestMapping(value="/role",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
 	public CreateRoleOutput Register(@RequestBody CreateRoleInput roleinput,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws customException
 	{	
 		roleinput.setAlf_ticket(ticket);//setting createdBy property in CreateRoleInput class
