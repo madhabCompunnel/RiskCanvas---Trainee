@@ -97,19 +97,42 @@ public class ConnectionClass
 		 */
 		UUID uniqueKey = UUID.randomUUID();
 		user.setAlfTicket("TICKET_"+uniqueKey.toString());
+		PreparedStatement userExist=con.prepareStatement("select id from tbl_user_ticket where user_id=?");
+		userExist.setInt(1, user_id);
+		ResultSet userExistSet=userExist.executeQuery();
+		if(userExistSet.next())
+		{
+			PreparedStatement updateUserToken=con.prepareStatement("update tbl_user_ticket set alf_ticket=? where id=?");
+			updateUserToken.setString(1, user.getAlfTicket());
+			updateUserToken.setInt(2, userExistSet.getInt(1));
+			int result=updateUserToken.executeUpdate();
+			if(result>0)
+			{
+				con.commit();
+				con.close();
+			}
+			else
+			{
+				throw new UserException("error");
+			}
+		}
+		else
+		{
 		PreparedStatement preparedStatement=con.prepareStatement("insert into tbl_user_ticket(alf_ticket,user_id) values(?,?)");
 		preparedStatement.setString(1, user.getAlfTicket());
 		preparedStatement.setInt(2,user_id);
 		int result=preparedStatement.executeUpdate();
-		if(result>0)
-		{
-			//do nothing
+			if(result>0)
+			{
+				con.commit();
+				con.close();
+			}
 		}
-		con.commit();
 		}
 		catch(SQLException e)
 		{
 			con.rollback();
+			con.close();
 			throw new UserException(e.getMessage());
 		}
 		return user;
@@ -144,21 +167,17 @@ public class ConnectionClass
 			throw new UserException("Session no longer Exist! Kindly login again.");
 		}
 	}
-	public boolean getResult(CreateGroup creategroup)throws SQLException
+	
+	public boolean getResult(CreateGroup creategroup)throws SQLException, UserException
 	{
 		boolean result=false;
 		try
 		{
-			/*
-			 * establishing connection
-			 */
 		con=dataSource.getConnection();
-		System.out.println("established");
 		}
-		catch(Exception e)
+		catch(SQLException e)
 		{
-			System.out.println("not established");
-			e.printStackTrace();
+			throw new UserException(e.getMessage());
 		}
 		if(creategroup.getIsChild().isEmpty() && creategroup.getIsParent().isEmpty())
 		{
@@ -169,21 +188,23 @@ public class ConnectionClass
 			int insertResult=insertStatement.executeUpdate();
 			if(insertResult>0)
 			{
-				System.out.println("new group added");
-				result=true;
-				
+				result=true;	
 			}
 			else
 			{
-				System.out.println("failed to add the group");
-				result=false;
+				throw new UserException("Unable to insert group");
 			}
-			
 		}
-		if(creategroup.getIsParent()=="true" && creategroup.getIsChild()=="false")
+		else if(creategroup.getIsParent()=="true" && creategroup.getIsChild()=="false")
 		{
-			try
+			if(creategroup.getSelectedGroupName().isEmpty()||creategroup.getSelectedGroupName()==null)
 			{
+				throw new UserException("SelectedGroupName cannot be left Empty");
+			}
+			else
+			{
+				try
+				{
 				con.setAutoCommit(false);
 				PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups values(?,?,?)");
 				insertStatement.setString(1, "Group_"+creategroup.getGroupName());
@@ -193,11 +214,11 @@ public class ConnectionClass
 				insertStatement.close();
 				if(insertResult>0)
 					{
-						System.out.println("parent insert successful");
+						//do nothing
 					}
 				else
 					{
-						System.out.println("unable to insert parent");
+						throw new UserException("Unable to create Group");
 					}
 				PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set parent_id=? where group_id=?"); 
 				updateStatement.setString(1, "Group_"+creategroup.getGroupName());
@@ -205,24 +226,26 @@ public class ConnectionClass
 				int updateResult=updateStatement.executeUpdate();
 				if(updateResult>0)
 					{
-						System.out.println("child updated");
+					con.commit();
+					con.close();
+					result=true;
 					}
-				else
+				}
+				catch(Exception e)
 					{
-						System.out.println("failed to update the child");
+					e.printStackTrace();
+					con.rollback();
+					con.close();
+					result=false;
 					}
-				con.commit();
-				result=true;
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-				con.rollback();
-				result=false;
-			}
+				}
 		}
 		else if(creategroup.getIsChild()=="true" && creategroup.getIsParent()=="false")
 		{
+			if(creategroup.getSelectedGroupName().isEmpty()||creategroup.getSelectedGroupName()==null)
+			{
+				throw new UserException("SelectedGroupName cannot be left Empty");
+			}
 			PreparedStatement preparedStatement=con.prepareStatement("insert into tbl_groups values(?,?,?)");
 			preparedStatement.setString(1, "Group_"+creategroup.getGroupName());
 			preparedStatement.setString(2,creategroup.getGroupName());
@@ -230,13 +253,11 @@ public class ConnectionClass
 			int insertResult=preparedStatement.executeUpdate();
 				if(insertResult>0)
 				{
-					System.out.println("successful creating group");
 					result=true;
 				}
 				else
 				{
-					System.out.println("unable to create a group");
-					result=false;
+					throw new UserException("unable to insert the group");
 				}
 		}
 		return result;
@@ -271,7 +292,7 @@ public class ConnectionClass
 				System.out.println("failed to update the group");
 				result=false;
 			}
-		
+		con.close();
 		return result;
 		
 	}
