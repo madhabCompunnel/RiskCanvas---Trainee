@@ -22,13 +22,15 @@ public class getalf_ticket {
 		conn = datasource.getConnection();
 		PreparedStatement ps5 = conn.prepareStatement(sql1);
 		ResultSet rs = ps5.executeQuery();//executing query
-		while(rs.next())
+		if(rs.next())
 		{
-		System.out.println("user ="+rs.getString(1));
 		user=rs.getString(1);
 		return user;
 		}
-		return user;
+		else
+		{
+			throw new customException(505,"No such token id exists :"+alf_ticket);
+		}
 	}
-
 }
+
