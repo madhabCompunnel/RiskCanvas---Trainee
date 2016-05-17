@@ -3,17 +3,17 @@ package bahriskcanvas;
 
 import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 @RestController
+/*
+ * Class remove the row from the tbl_user_ticket  
+ */
 public class LogoutController 
 {
 	/**
@@ -27,8 +27,13 @@ public class LogoutController
 	@RequestMapping(value="/logout",method=RequestMethod.POST)
 	public void logout(@RequestHeader("alfTicket") String alfTicket,HttpServletRequest request) throws UserException
 	{
-		WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
-        ConnectionClass connectionClass = (ConnectionClass) applicationContext.getBean("DAO");
+		if(alfTicket.isEmpty()||alfTicket==null)
+		{
+			throw new UserException("alfTicket is empty");
+		}
+		else
+		{
+		 ConnectionClass connectionClass =GetConfig.getConfig(request);
 			try 
 			{
 				connectionClass.logout(alfTicket);
@@ -43,7 +48,8 @@ public class LogoutController
 			catch(Exception e)
 			{
 				throw new UserException(e.getMessage());
-			}       
+			}
+		}
 	}
 	/**
 	 * 

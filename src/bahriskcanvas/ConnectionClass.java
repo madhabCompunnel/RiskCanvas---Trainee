@@ -18,7 +18,8 @@ import bahriskcanvas.User;
  */
 public class ConnectionClass 
 {
-	public static ArrayList<String> arr=new ArrayList<String>();
+	// This array stores all descendant nodes of a parent
+	public static ArrayList<String> children=new ArrayList<String>();
 	private DataSource dataSource=null;
 	private Connection con=null;
 	/**
@@ -33,24 +34,15 @@ public class ConnectionClass
 	/**
 	 * 
 	 * @param credentials
-	 * @return
+	 * @return User 
 	 * @throws SQLException
 	 * @throws NullPointerException
 	 * @throws UserException
+	 * Method
 	 */
 	public User getUser(Credentials credentials)throws SQLException,NullPointerException, UserException
 	{
-		/*
-		 * get Connection Object
-		 */
-		try
-		{
 		con=dataSource.getConnection();
-		}
-		catch(SQLException e)
-		{
-			throw new UserException(e.getMessage());
-		}
 		int user_id=0;
 		/*
 		 * Creating User Object to Map with ResultSet data
@@ -152,17 +144,11 @@ public class ConnectionClass
 	 */
 	public void logout(String alfTicket)throws SQLException, UserException 
 	{
-		try
-		{
 		con=dataSource.getConnection();
-		}
-		catch(SQLException e)
-		{
-			throw new UserException(e.getMessage());
-		}
 		PreparedStatement updateStatement=con.prepareStatement("delete from tbl_user_ticket where alf_ticket=?");
 		updateStatement.setString(1,alfTicket);
 		int result=updateStatement.executeUpdate();
+		con.close();
 		if(result>0)
 		{
 			//do nothing
@@ -181,28 +167,19 @@ public class ConnectionClass
 	 * @throws NullPointerException
 	 * Method Creates a New group
 	 */
-	public boolean getResult(CreateGroup creategroup)throws SQLException, UserException,NullPointerException
+	public boolean getResult(CreateGroup creategroup)throws SQLException, UserException,NullPointerException,Exception
 	{
 		/*
 		 * result is set to true if group creation is successful
 		 */
 		boolean result=false;
-		/*
-		 * Get Connection Object
-		 */
-		try
-		{
 		con=dataSource.getConnection();
-		}
-		catch(SQLException e)
-		{
-			throw new UserException(e.getMessage());
-		}
 		/*
-		 * check if group has neither parent nor children
+		 * check for group with neither parent nor children
 		 */
 		if(creategroup.getIsChild().isEmpty() && creategroup.getIsParent().isEmpty())
 		{
+			System.out.println("a");
 			PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups values(?,?,?)");
 			insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 			insertStatement.setString(2,creategroup.getGroupName());
@@ -214,14 +191,15 @@ public class ConnectionClass
 			}
 			else
 			{
-				throw new UserException("Unable to insert group");
+				result=false;
 			}
 		}
 		/*
-		 *  check if group has parent but no children
+		 *  check for group with parent but no children
 		 */
-		else if(creategroup.getIsParent()=="true" && creategroup.getIsChild()=="false")
+		else if(creategroup.getIsParent().equals("true") && creategroup.getIsChild().equals("false"))
 		{
+			System.out.println("b");
 			if(creategroup.getSelectedGroupName().isEmpty()||creategroup.getSelectedGroupName()==null)
 			{
 				throw new UserException("SelectedGroupName cannot be left Empty");
@@ -266,10 +244,11 @@ public class ConnectionClass
 				}
 		}
 		/*
-		 * check if group has both parent and children
+		 * check if group 
 		 */
-		else if(creategroup.getIsChild()=="true" && creategroup.getIsParent()=="false")
+		else if(creategroup.getIsChild().equals("true") && creategroup.getIsParent().equals("false"))
 		{
+			System.out.println("c");
 			if(creategroup.getSelectedGroupName().isEmpty()||creategroup.getSelectedGroupName()==null)
 			{
 				throw new UserException("SelectedGroupName cannot be left Empty");
@@ -285,7 +264,7 @@ public class ConnectionClass
 				}
 				else
 				{
-					throw new UserException("unable to insert the group");
+					result=false;
 				}
 		}
 		return result;
@@ -301,18 +280,7 @@ public class ConnectionClass
 	 */
 	public boolean getResult(EditGroup editGroup)throws SQLException,NullPointerException,UserException
 	{
-		/*
-		 * Get connection Object
-		 */
-		try
-		{
-			con=dataSource.getConnection();
-			
-		}
-		catch(SQLException e)
-		{
-			throw new UserException(e.getMessage());
-		}
+		con=dataSource.getConnection();
 		/*
 		 * result is set to true if editing group is successful
 		 */
@@ -327,7 +295,7 @@ public class ConnectionClass
 			}
 		else
 			{
-				throw new UserException("failed to edit group");
+				result=false;
 			}
 		con.close();
 		return result;
@@ -346,17 +314,17 @@ public class ConnectionClass
 		ResultSet rs=ps.executeQuery();
 		while(rs.next())
 		{
-			arr.add(rs.getString(1));
+			children.add(rs.getString(1));
 		}
-		new DescendantChildren().getChildren(arr,0,con);
+		new DescendantChildren().getChildren(children,0,con);
 		PreparedStatement findUserStatement=con.prepareStatement("select user_id from tbl_user_groups where group_id IN(?)");
-		String parameters = StringUtils.join(arr.iterator(),",");  
+		String parameters = StringUtils.join(children.iterator(),",");  
 		ps.setString(1, parameters );  
 		ResultSet rSet = findUserStatement.executeQuery();
 		if(!rSet.next())
 		{
 		PreparedStatement deleteGroupStatement=con.prepareStatement("delete from tbl_groups where group_id=?");
-		for(String group:arr)
+		for(String group:children)
 		{
 			deleteGroupStatement.setString(1, group);
 			deleteGroupStatement.addBatch();

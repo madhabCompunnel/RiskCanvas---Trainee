@@ -43,6 +43,10 @@ public class GroupController
 				{
 				throw new UserException(e.getMessage());
 				}
+			catch(Exception e)
+			{
+			throw new UserException(e.getMessage());
+			}
 		}
 	}
 	@RequestMapping(value="group/edit",method=RequestMethod.POST,consumes="application/json",produces="application/json")
