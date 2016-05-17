@@ -14,7 +14,7 @@ public class GetConfig
 		
 	}
 	
-	public static CreateRoleService getConfig1(HttpServletRequest request)
+	public static CreateRoleService getConfigRole(HttpServletRequest request)
 	{
 		WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
 		CreateRoleService createroleservice= (CreateRoleService) applicationContext.getBean("DBUtility");

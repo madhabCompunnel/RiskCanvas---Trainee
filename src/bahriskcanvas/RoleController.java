@@ -5,7 +5,7 @@
  * @time 10:37 AM
  *
  */
-//Create Role Service Controller
+//Role Service Controller
 package bahriskcanvas;
 import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
@@ -18,11 +18,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import bahriskcanvas.CreateRoleInput;
 import bahriskcanvas.CreateRoleService;
+import bahriskcanvas.CreateRoleOutput;
+import bahriskcanvas.GetConfig;
+import bahriskcanvas.customException;
 
 @RestController 
 public class RoleController 
 {
 	CreateRoleService createroleservice=new CreateRoleService();
+	/*****************************************************************************************************************************************************/	
+	/*****************************************************       FOR CREATING NEW ROLE      **************************************************************/
+	/*****************************************************************************************************************************************************/
 	/**
 	 * @param roleinput
 	 * Type CreateRoelInput
@@ -30,15 +36,18 @@ public class RoleController
 	 * Type HttpSErvletRequest
 	 * @return success(true/false)
 	 */
-	@RequestMapping(value="/role",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
-	public CreateRoleOutput Register(@RequestBody CreateRoleInput roleinput,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws customException
+	@RequestMapping(value="/role/create",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
+	public CreateRoleOutput RegisterRole(@RequestBody CreateRoleInput roleinput,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws customException
 	{	
 		roleinput.setAlf_ticket(ticket);//setting createdBy property in CreateRoleInput class
 		CreateRoleOutput success=new CreateRoleOutput();
 		int size=roleinput.getMenulist().get(0).getPermissions().size();//to get size of the menuList array in input JSON
 		
+		VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
+	    verify.isboolean(roleinput);
+		
 		/**********************Setting context for retrieving the configuration file**********************/
-		createroleservice = GetConfig.getConfig1(req);//Bean for setting database configurations
+		createroleservice = GetConfig.getConfigRole(req);//Bean for setting database configurations
 		try 
 		{
 			boolean output=createroleservice.insert(roleinput,size);
@@ -51,6 +60,45 @@ public class RoleController
 		}
         return success;
 	}
+
+	/*****************************************************************************************************************************************************/	
+	/*******************************************************       FOR EDITING ROLE      *****************************************************************/
+	/*****************************************************************************************************************************************************/
+	/**
+	 * @param editinput
+	 * Type CreateRoelInput
+	 * @param req
+	 * Type HttpSErvletRequest
+	 * @return success(true/false)
+	 */
+	@RequestMapping(value="/role/edit",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
+	public CreateRoleOutput EditRole(@RequestBody CreateRoleInput editinput,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket)
+	{	
+		editinput.setAlf_ticket(ticket);//setting createdBy property in CreateRoleInput class
+		CreateRoleOutput success=new CreateRoleOutput();
+		int size=editinput.getMenulist().get(0).getPermissions().size();//to get size of the menuList array in input JSON
+		
+		VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
+	    verify.isboolean(editinput);
+		
+		/**********************Setting context for retrieving the configuration file**********************/
+		createroleservice = GetConfig.getConfigRole(req);//Bean for setting database configurations
+		try 
+		{
+			boolean output=createroleservice.update(editinput,size);
+			success.setSuccess(output);
+		} 
+		catch (SQLException e) 
+		{
+			success.setSuccess(false);
+			throw new customException(e.getErrorCode(), e.getMessage());
+		}
+        return success;
+	}
+
+	/*****************************************************************************************************************************************************/	
+	/***************************************************       FOR HANDLING CUSTOM EXCEPTION      ********************************************************/
+	/*****************************************************************************************************************************************************/
 	/**
 	 * @param ex
 	 * @return

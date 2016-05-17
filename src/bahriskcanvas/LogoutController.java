@@ -1,4 +1,4 @@
-//hello
+
 package bahriskcanvas;
 
 import java.sql.SQLException;

@@ -7,7 +7,7 @@ import java.util.List;
 public class CreateRoleInput {
 	private String roleId;
 	private String roleName;
-	private Boolean isActive;
+	private String isActive;
 	private String roleType;
 	private String defaultScreen;
 	private String assignedUser;
@@ -31,13 +31,13 @@ public class CreateRoleInput {
 	* @return
 	* The isActive
 	*/
-	public Boolean getIsActive() {
+	public String getIsActive() {
 	return isActive;
 	}
 	/**
 	* @param isActive
 	*/
-	public void setIsActive(Boolean isActive) {
+	public void setIsActive(String isActive) {
 	this.isActive = isActive;
 	}
 	/**
