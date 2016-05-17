@@ -44,24 +44,34 @@ public class GroupController
 				{	
 				throw new UserException(e.getMessage());
 				}
-			catch(Exception e)
+			catch(NullPointerException e)
 				{
 				throw new UserException(e.getMessage());
 				}
 		}
 	}
 	@RequestMapping(value="group/edit",method=RequestMethod.POST,consumes="application/json",produces="application/json")
-	public Success editGroup(@RequestBody EditGroup editGroup,HttpServletRequest request)
+	public Success editGroup(@RequestBody EditGroup editGroup,HttpServletRequest request) throws UserException
 	{
 		WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
         ConnectionClass connectionClass = (ConnectionClass) applicationContext.getBean("DAO");
         boolean result=false;
-		try {
-			result = connectionClass.getResult(editGroup);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			try 
+			{
+				result = connectionClass.getResult(editGroup);
+			} 
+			catch (NullPointerException e) 
+			{
+				throw new UserException(e.getMessage());
+			}
+			catch (SQLException e) 
+			{
+				throw new UserException(e.getMessage());
+			}
+			catch(UserException e)
+			{
+				throw new UserException(e.getErrorMessage());
+			}
 		return new Success(result);
 	}
 	@RequestMapping(value="group/delete")
@@ -70,12 +80,17 @@ public class GroupController
 		WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
         ConnectionClass connectionClass = (ConnectionClass) applicationContext.getBean("DAO");
         boolean result=false;
-		try {
-			result = connectionClass.getResult(group_id);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			try {
+				result = connectionClass.getResult(group_id);
+				}
+			catch (NullPointerException | UserException e) 
+				{
+				e.printStackTrace();
+				}
+			catch (SQLException e) 
+				{
+				e.printStackTrace();
+				}
 		return new Success(result);
 	}
 	public Success moveGroup(@RequestBody MoveGroup moveGroup,HttpServletRequest request)

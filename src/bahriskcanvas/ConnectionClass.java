@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 
 import bahriskcanvas.User;
 /*
- * Class establishes connection and retrieve data from the database
+ * Class establishes connection and retrieve data from the database and pass the result to respective Controller
  */
 public class ConnectionClass 
 {
@@ -111,10 +111,6 @@ public class ConnectionClass
 				con.commit();
 				con.close();
 			}
-			else
-			{
-				throw new UserException("error");
-			}
 		}
 		else
 		{
@@ -168,7 +164,7 @@ public class ConnectionClass
 		}
 	}
 	
-	public boolean getResult(CreateGroup creategroup)throws SQLException, UserException
+	public boolean getResult(CreateGroup creategroup)throws SQLException, UserException,NullPointerException
 	{
 		boolean result=false;
 		try
@@ -231,12 +227,12 @@ public class ConnectionClass
 					result=true;
 					}
 				}
-				catch(Exception e)
+				catch(SQLException e)
 					{
-					e.printStackTrace();
 					con.rollback();
 					con.close();
 					result=false;
+					throw new UserException(e.getMessage());
 					}
 				}
 		}
@@ -262,20 +258,22 @@ public class ConnectionClass
 		}
 		return result;
 	}
-	public boolean getResult(EditGroup editGroup)throws SQLException
+	/**
+	 * 
+	 * @param editGroup
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean getResult(EditGroup editGroup)throws SQLException,NullPointerException,UserException
 	{
 		try
 		{
-			/*
-			 * establishing connection
-			 */
-		con=dataSource.getConnection();
-		System.out.println("established");
+			con=dataSource.getConnection();
+			
 		}
-		catch(Exception e)
+		catch(SQLException e)
 		{
-			System.out.println("not established");
-			e.printStackTrace();
+			throw new UserException(e.getMessage());
 		}
 		boolean result=false;
 		PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set group_name=? where group_id=?"); 
@@ -284,32 +282,24 @@ public class ConnectionClass
 		int updateResult=updateStatement.executeUpdate();
 		if(updateResult>0)
 			{
-				System.out.println("group updated");
 				result=true;
 			}
 		else
 			{
-				System.out.println("failed to update the group");
 				result=false;
 			}
 		con.close();
 		return result;
-		
 	}
-	public boolean getResult(String group_id)throws SQLException
+	public boolean getResult(String group_id)throws SQLException,NullPointerException,UserException
 	{
 		try
 		{
-			/*
-			 * establishing connection
-			 */
 		con=dataSource.getConnection();
-		System.out.println("established");
 		}
-		catch(Exception e)
+		catch(SQLException e)
 		{
-			System.out.println("not established");
-			e.printStackTrace();
+			throw new UserException(e.getMessage());
 		}
 		ArrayList<Group> groups=new ArrayList<Group>();
 	//	int [] childCount=null;
