@@ -7,7 +7,7 @@ import java.util.List;
 public class Menulist {
 	private String id;
 	private String description;
-	private Boolean value;
+	private String value;
 	private List<RolePermission> permissions = new ArrayList<RolePermission>();
 	/**
 	* @return
@@ -41,14 +41,14 @@ public class Menulist {
 	* @return
 	* The value
 	*/
-	public Boolean getValue() {
+	public String getValue() {
 	return value;
 	}
 	/**
 	* @param value
 	* The value
 	*/
-	public void setValue(Boolean value) {
+	public void setValue(String value) {
 	this.value = value;
 	}
 	/**

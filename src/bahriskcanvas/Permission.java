@@ -11,7 +11,7 @@ public class Permission {
     private Boolean value;
     
     
-    public Permission(String pid,String pdesc,boolean pval)
+    public Permission(String pid,String pdesc,Boolean pval)
     {
     	id=pid;
     	description=pdesc;
