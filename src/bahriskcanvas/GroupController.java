@@ -1,9 +1,7 @@
 package bahriskcanvas;
 
 import java.sql.SQLException;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import bahriskcanvas.ConnectionClass;
 
@@ -28,8 +24,7 @@ public class GroupController
 		}
 		else
 		{
-		WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
-        ConnectionClass connectionClass = (ConnectionClass) applicationContext.getBean("DAO");
+			 ConnectionClass connectionClass =GetConfig.getConfig(request);
         boolean result=false;
 			try
 				{
@@ -53,8 +48,7 @@ public class GroupController
 	@RequestMapping(value="group/edit",method=RequestMethod.POST,consumes="application/json",produces="application/json")
 	public Success editGroup(@RequestBody EditGroup editGroup,HttpServletRequest request) throws UserException
 	{
-		WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
-        ConnectionClass connectionClass = (ConnectionClass) applicationContext.getBean("DAO");
+		 ConnectionClass connectionClass =GetConfig.getConfig(request);
         boolean result=false;
 			try 
 			{
@@ -75,28 +69,37 @@ public class GroupController
 		return new Success(result);
 	}
 	@RequestMapping(value="group/delete")
-	public Success deleteGroup(@RequestParam("groupId") String group_id,HttpServletRequest request)
+	public Success deleteGroup(@RequestParam("groupId") String group_id,HttpServletRequest request) throws UserException
 	{
-		WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
-        ConnectionClass connectionClass = (ConnectionClass) applicationContext.getBean("DAO");
+		if(group_id==null||group_id.isEmpty())
+		{
+		throw new UserException("groupId cannot be left empty");	
+		}
+		else
+		{
+		ConnectionClass connectionClass =GetConfig.getConfig(request);
         boolean result=false;
 			try {
 				result = connectionClass.getResult(group_id);
 				}
-			catch (NullPointerException | UserException e) 
+			catch (NullPointerException e)				
 				{
-				e.printStackTrace();
+				throw new UserException(e.getMessage());
 				}
 			catch (SQLException e) 
 				{
-				e.printStackTrace();
+				throw new UserException(e.getMessage());
+				}
+			catch(Exception e)
+				{
+				throw new UserException(e.getMessage());
 				}
 		return new Success(result);
+		}
 	}
 	public Success moveGroup(@RequestBody MoveGroup moveGroup,HttpServletRequest request)
 	{
-		WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
-        ConnectionClass connectionClass = (ConnectionClass) applicationContext.getBean("DAO");
+		 ConnectionClass connectionClass =GetConfig.getConfig(request);
         boolean result=connectionClass.getResult(moveGroup);
 		return new Success(result);
 	}

@@ -10,12 +10,15 @@ import java.util.ArrayList;
 import java.util.UUID;
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.StringUtils;
+
 import bahriskcanvas.User;
 /*
  * Class establishes connection and retrieve data from the database and pass the result to respective Controller
  */
 public class ConnectionClass 
 {
+	public static ArrayList<String> arr=new ArrayList<String>();
 	private DataSource dataSource=null;
 	private Connection con=null;
 	/**
@@ -333,27 +336,41 @@ public class ConnectionClass
 	 * 
 	 * @param group_id
 	 * @return
-	 * @throws SQLException
-	 * @throws NullPointerException
-	 * @throws UserException
-	 * Method to delete a group
+	 * @throws Exception 
 	 */
-	public boolean getResult(String group_id)throws SQLException,NullPointerException,UserException
+	public boolean getResult(String group_id)throws NullPointerException,UserException,SQLException,Exception
 	{
-		try
-		{
 		con=dataSource.getConnection();
-		}
-		catch(SQLException e)
+		PreparedStatement ps=con.prepareStatement("select group_id from tbl_groups where parent_id=?");
+		ps.setString(1,group_id);
+		ResultSet rs=ps.executeQuery();
+		while(rs.next())
 		{
-			throw new UserException(e.getMessage());
+			arr.add(rs.getString(1));
 		}
-		
-		return false;	
+		new DescendantChildren().getChildren(arr,0,con);
+		PreparedStatement findUserStatement=con.prepareStatement("select user_id from tbl_user_groups where group_id IN(?)");
+		String parameters = StringUtils.join(arr.iterator(),",");  
+		ps.setString(1, parameters );  
+		ResultSet rSet = findUserStatement.executeQuery();
+		if(!rSet.next())
+		{
+		PreparedStatement deleteGroupStatement=con.prepareStatement("delete from tbl_groups where group_id=?");
+		for(String group:arr)
+		{
+			deleteGroupStatement.setString(1, group);
+			deleteGroupStatement.addBatch();
+		}
+		deleteGroupStatement.executeBatch();
+		return true;
+		}
+		else
+		{
+		return false;
+		}
 	}
 	public boolean getResult(MoveGroup creategroup)
 	{
-		
 		//code
 		return false;
 		

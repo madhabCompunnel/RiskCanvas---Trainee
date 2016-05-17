@@ -29,18 +29,18 @@ public class LoginController
 	public User login(@RequestBody Credentials credentials,HttpServletRequest request)throws UserException
 	{
 		/*
-		 * check if username is empty
+		 * check if user name is empty
 		 */
 		if(credentials.getUsername().isEmpty()||credentials.getUsername()==null)
 		{
-			throw new UserException("UserName cannot be empty");
+			throw new UserException("UserName field cannot be left empty");
 		}
 		/*
 		 * check if password is empty
 		 */
 		if(credentials.getPassword().isEmpty()||credentials.getPassword()==null)
 		{
-			throw new UserException("Password cannot be empty");
+			throw new UserException("Password field cannot be left empty");
 		}
 		/*
 		 * This is connectionClass is used to get the DataSource Bean configuration.
