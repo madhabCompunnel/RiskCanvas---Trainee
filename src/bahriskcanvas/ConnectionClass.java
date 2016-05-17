@@ -37,6 +37,9 @@ public class ConnectionClass
 	 */
 	public User getUser(Credentials credentials)throws SQLException,NullPointerException, UserException
 	{
+		/*
+		 * get Connection Object
+		 */
 		try
 		{
 		con=dataSource.getConnection();
@@ -46,6 +49,9 @@ public class ConnectionClass
 			throw new UserException(e.getMessage());
 		}
 		int user_id=0;
+		/*
+		 * Creating User Object to Map with ResultSet data
+		 */
 		User user=new User();
 		PreparedStatement selectUserStatement=con.prepareStatement("select u.username, u.f_name, u.l_name, cr.roleName, cr.defaultscreen, GROUP_CONCAT(p.id), GROUP_CONCAT(p.description), GROUP_CONCAT(p.value),u.password,u.user_id FROM tbl_user as u INNER JOIN user_role as ur ON u.user_id=ur.user_id INNER JOIN tbl_createrole as cr ON cr.roleId=ur.roleId INNER JOIN tbl_permissions as p ON ur.roleId=p.roleid WHERE username=?");
 		selectUserStatement.setString(1,credentials.getUsername());
@@ -139,7 +145,7 @@ public class ConnectionClass
 	 * @return
 	 * @throws SQLException
 	 * @throws UserException
-	 * * Method Delete the row with alfTicket 
+	 * * Method Delete the row with alfTicket from the table tbl_user_ticket
 	 */
 	public void logout(String alfTicket)throws SQLException, UserException 
 	{
@@ -163,10 +169,24 @@ public class ConnectionClass
 			throw new UserException("Session no longer Exist! Kindly login again.");
 		}
 	}
-	
+	/**
+	 * 
+	 * @param creategroup
+	 * @return
+	 * @throws SQLException
+	 * @throws UserException
+	 * @throws NullPointerException
+	 * Method Creates a New group
+	 */
 	public boolean getResult(CreateGroup creategroup)throws SQLException, UserException,NullPointerException
 	{
+		/*
+		 * result is set to true if group creation is successful
+		 */
 		boolean result=false;
+		/*
+		 * Get Connection Object
+		 */
 		try
 		{
 		con=dataSource.getConnection();
@@ -175,6 +195,9 @@ public class ConnectionClass
 		{
 			throw new UserException(e.getMessage());
 		}
+		/*
+		 * check if group has neither parent nor children
+		 */
 		if(creategroup.getIsChild().isEmpty() && creategroup.getIsParent().isEmpty())
 		{
 			PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups values(?,?,?)");
@@ -191,6 +214,9 @@ public class ConnectionClass
 				throw new UserException("Unable to insert group");
 			}
 		}
+		/*
+		 *  check if group has parent but no children
+		 */
 		else if(creategroup.getIsParent()=="true" && creategroup.getIsChild()=="false")
 		{
 			if(creategroup.getSelectedGroupName().isEmpty()||creategroup.getSelectedGroupName()==null)
@@ -236,6 +262,9 @@ public class ConnectionClass
 					}
 				}
 		}
+		/*
+		 * check if group has both parent and children
+		 */
 		else if(creategroup.getIsChild()=="true" && creategroup.getIsParent()=="false")
 		{
 			if(creategroup.getSelectedGroupName().isEmpty()||creategroup.getSelectedGroupName()==null)
@@ -263,9 +292,15 @@ public class ConnectionClass
 	 * @param editGroup
 	 * @return
 	 * @throws SQLException
+	 * @throws NullPointerException
+	 * @throws UserException
+	 * Method to Edit group
 	 */
 	public boolean getResult(EditGroup editGroup)throws SQLException,NullPointerException,UserException
 	{
+		/*
+		 * Get connection Object
+		 */
 		try
 		{
 			con=dataSource.getConnection();
@@ -275,6 +310,9 @@ public class ConnectionClass
 		{
 			throw new UserException(e.getMessage());
 		}
+		/*
+		 * result is set to true if editing group is successful
+		 */
 		boolean result=false;
 		PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set group_name=? where group_id=?"); 
 		updateStatement.setString(1, "Group_"+editGroup.getGroupName());
@@ -286,11 +324,20 @@ public class ConnectionClass
 			}
 		else
 			{
-				result=false;
+				throw new UserException("failed to edit group");
 			}
 		con.close();
 		return result;
 	}
+	/**
+	 * 
+	 * @param group_id
+	 * @return
+	 * @throws SQLException
+	 * @throws NullPointerException
+	 * @throws UserException
+	 * Method to delete a group
+	 */
 	public boolean getResult(String group_id)throws SQLException,NullPointerException,UserException
 	{
 		try
@@ -301,33 +348,8 @@ public class ConnectionClass
 		{
 			throw new UserException(e.getMessage());
 		}
-		ArrayList<Group> groups=new ArrayList<Group>();
-	//	int [] childCount=null;
-		int index=0;
-		while(group_id!=null)
-		{
-			//get parent
-			PreparedStatement selectParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where group_id=?");
-			selectParentStatement.setString(1, group_id);
-			ResultSet parent=selectParentStatement.executeQuery();
-			while(parent.next())
-			{
-				groups.add(new Group(parent.getString(1),parent.getString(2),parent.getString(3)));
-			}
-					//get children
-				PreparedStatement getChildStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
-				getChildStatement.setString(1, group_id);
-				ResultSet childSet=selectParentStatement.executeQuery();
-				
-			
-				while(childSet.next())
-				{
-					groups.add(new Group(childSet.getString(1),childSet.getString(2),childSet.getString(3)));
-					
-				}
-			}
-			group_id=groups.get(index+1).getParent_id();				
-		return false;
+		
+		return false;	
 	}
 	public boolean getResult(MoveGroup creategroup)
 	{
