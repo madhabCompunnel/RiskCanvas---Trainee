@@ -14,4 +14,7 @@
 	http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 <context:component-scan base-package="bahriskcanvas"/>	
 <mvc:annotation-driven/>
+<mvc:cors>
+	<mvc:mapping path="/**" />
+</mvc:cors>
 </beans>

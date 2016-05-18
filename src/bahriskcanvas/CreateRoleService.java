@@ -78,7 +78,8 @@ public class CreateRoleService
 			ps1.setTimestamp(6, currentTimestamp);
 			ps1.setString(7,user);
 			ps1.executeUpdate();//executing query
-		    
+
+			
 		    ps1 = conn.prepareStatement(sql2);
 		    ps1.setString(1, roleid);
 		    ps1.setString(2, createinput.getMenulist().get(0).getId());
