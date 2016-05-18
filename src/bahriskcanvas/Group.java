@@ -1,27 +1,42 @@
 package bahriskcanvas;
 
+import java.util.ArrayList;
+
 public class Group 
 {
-	private String group_id;
 	private String group_name;
-	private String parent_id;
-	
-	Group(String group_id,String group_name,String parent_id)
-	{
-		this.group_id=group_id;
-		this.group_name=group_name;
-		this.parent_id=parent_id;
-	}
-	public String getGroup_id() 
-	{
-		return group_id;
-	}
-	public String getGroup_name() 
-	{
+	private String parentId;
+	private int userCount;
+	private String groupId;
+	private ArrayList<Group> subgroup=new ArrayList<Group>();
+	public String getGroup_name() {
 		return group_name;
 	}
-	public String getParent_id() 
-	{
-		return parent_id;
+	public void setGroup_name(String group_name) {
+		this.group_name = group_name;
+	}
+	public String getParentId() {
+		return parentId;
+	}
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
+	public int getUserCount() {
+		return userCount;
+	}
+	public void setUserCount(int userCount) {
+		this.userCount = userCount;
+	}
+	public String getGroupId() {
+		return groupId;
+	}
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+	public ArrayList<Group> getSubgroup() {
+		return subgroup;
+	}
+	public void setSubgroup(ArrayList<Group> subgroup) {
+		this.subgroup = subgroup;
 	}
 }

@@ -20,6 +20,8 @@ public class ConnectionClass
 {
 	// This array stores all descendant nodes of a parent
 	public static ArrayList<String> children=new ArrayList<String>();
+	public static ArrayList<Group> subgroup=new ArrayList<Group>();
+	public static ArrayList<Group> arr=new ArrayList<Group>();
 	private DataSource dataSource=null;
 	private Connection con=null;
 	/**
@@ -48,7 +50,7 @@ public class ConnectionClass
 		 * Creating User Object to Map with ResultSet data
 		 */
 		User user=new User();
-		PreparedStatement selectUserStatement=con.prepareStatement("select u.username, u.f_name, u.l_name, cr.roleName, cr.defaultscreen, GROUP_CONCAT(p.id), GROUP_CONCAT(p.description), GROUP_CONCAT(p.value),u.password,u.user_id FROM tbl_user as u INNER JOIN user_role as ur ON u.user_id=ur.user_id INNER JOIN tbl_createrole as cr ON cr.roleId=ur.roleId INNER JOIN tbl_permissions as p ON ur.roleId=p.roleid WHERE username=?");
+		PreparedStatement selectUserStatement=con.prepareStatement("SELECT U.USERNAME, U.F_NAME, U.L_NAME, CR.ROLENAME, CR.DEFAULTSCREEN, GROUP_CONCAT(P.ID), GROUP_CONCAT(P.DESCRIPTION), GROUP_CONCAT(P.VALUE),U.PASSWORD,U.USER_ID FROM TBL_USER AS U INNER JOIN USER_ROLE AS UR ON U.USER_ID=UR.USER_ID INNER JOIN TBL_CREATEROLE AS CR ON CR.ROLEID=UR.ROLEID INNER JOIN TBL_PERMISSIONS AS P ON UR.ROLEID=P.ROLEID WHERE USERNAME=?");
 		selectUserStatement.setString(1,credentials.getUsername());
 		/*
 		 * Executing query and getting result into the ResultSet Object
@@ -99,12 +101,12 @@ public class ConnectionClass
 		 */
 		UUID uniqueKey = UUID.randomUUID();
 		user.setAlfTicket("TICKET_"+uniqueKey.toString());
-		PreparedStatement userExist=con.prepareStatement("select id from tbl_user_ticket where user_id=?");
+		PreparedStatement userExist=con.prepareStatement("SELECT ID FROM TBL_USER_TICKET WHERE USER_ID=?");
 		userExist.setInt(1, user_id);
 		ResultSet userExistSet=userExist.executeQuery();
 		if(userExistSet.next())
 		{
-			PreparedStatement updateUserToken=con.prepareStatement("update tbl_user_ticket set alf_ticket=? where id=?");
+			PreparedStatement updateUserToken=con.prepareStatement("UPDATE TBL_USER_TICKET SET ALF_TICKET=? WHERE ID=?");
 			updateUserToken.setString(1, user.getAlfTicket());
 			updateUserToken.setInt(2, userExistSet.getInt(1));
 			int result=updateUserToken.executeUpdate();
@@ -115,7 +117,7 @@ public class ConnectionClass
 		}
 		else
 		{
-		PreparedStatement preparedStatement=con.prepareStatement("insert into tbl_user_ticket(alf_ticket,user_id) values(?,?)");
+		PreparedStatement preparedStatement=con.prepareStatement("INSERT INTO TBL_USER_TICKET(ALF_TICKET,USER_ID) VALUES(?,?)");
 		preparedStatement.setString(1, user.getAlfTicket());
 		preparedStatement.setInt(2,user_id);
 		int result=preparedStatement.executeUpdate();
@@ -147,7 +149,7 @@ public class ConnectionClass
 	public void logout(String alfTicket)throws SQLException, UserException 
 	{
 		con=dataSource.getConnection();
-		PreparedStatement updateStatement=con.prepareStatement("delete from tbl_user_ticket where alf_ticket=?");
+		PreparedStatement updateStatement=con.prepareStatement("DELETE FROM TBL_USER_TICKET WHERE ALF_TICKET=?");
 		updateStatement.setString(1,alfTicket);
 		int result=updateStatement.executeUpdate();
 		con.close();
@@ -184,7 +186,7 @@ public class ConnectionClass
 			con.setAutoCommit(false);
 			if(creategroup.getIsChild().isEmpty() && creategroup.getIsParent().isEmpty())
 			{	
-				PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
+				PreparedStatement insertStatement=con.prepareStatement("INSERT INTO TBL_GROUPS(GROUP_ID,GROUP_NAME,PARENT_ID,CREATED_BY,CREATED_ON)VALUES(?,?,?,?,NOW())");
 				insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 				insertStatement.setString(2,creategroup.getGroupName());
 				insertStatement.setString(3,"NULL");
@@ -206,7 +208,7 @@ public class ConnectionClass
 				}
 				else
 				{
-					PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
+					PreparedStatement insertStatement=con.prepareStatement("INSERT INTO TBL_GROUPS(GROUP_ID,GROUP_NAME,PARENT_ID,CREATED_BY,CREATED_ON)VALUES(?,?,?,?,NOW())");
 					insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 					insertStatement.setString(2,creategroup.getGroupName());
 					insertStatement.setString(3,"NULL");
@@ -215,7 +217,7 @@ public class ConnectionClass
 					insertStatement.close();
 					if(insertResult>0)
 						{
-						PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set parent_id=? where group_id=?"); 
+						PreparedStatement updateStatement=con.prepareStatement("UPDATE TBL_GROUPS SET PARENT_ID=? WHERE GROUP_ID=?"); 
 						updateStatement.setString(1, "Group_"+creategroup.getGroupName());
 						updateStatement.setString(2, creategroup.getSelectedGroupName());
 						int updateResult=updateStatement.executeUpdate();
@@ -240,7 +242,7 @@ public class ConnectionClass
 				{
 					throw new UserException("SelectedGroupName cannot be left Empty");
 				}
-				PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
+				PreparedStatement insertStatement=con.prepareStatement("INSERT INTO TBL_GROUPS(GROUP_ID,GROUP_NAME,PARENT_ID,CREATED_BY,CREATED_ON)VALUES(?,?,?,?,NOW())");
 				insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 				insertStatement.setString(2,creategroup.getGroupName());
 				insertStatement.setString(3,creategroup.getSelectedGroupName());
@@ -283,7 +285,7 @@ public class ConnectionClass
 		 * result is set to true if editing group is successful
 		 */
 		boolean result=false;
-		PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set group_name=? where group_id=?"); 
+		PreparedStatement updateStatement=con.prepareStatement("UPDATE TBL_GROUPS SET GROUP_NAME=? WHERE GROUP_ID=?"); 
 		updateStatement.setString(1, "Group_"+editGroup.getGroupName());
 		updateStatement.setString(2, editGroup.getGroupId());
 		int updateResult=updateStatement.executeUpdate();
@@ -307,7 +309,7 @@ public class ConnectionClass
 	public boolean getResult(String group_id)throws NullPointerException,UserException,SQLException,Exception
 	{
 		con=dataSource.getConnection();
-		PreparedStatement ps=con.prepareStatement("select group_id from tbl_groups where parent_id=?");
+		PreparedStatement ps=con.prepareStatement("SELECT GROUP_ID FROM TBL_GROUPS WHERE PARENT_ID=?");
 		ps.setString(1,group_id);
 		ResultSet rs=ps.executeQuery();
 		while(rs.next())
@@ -315,13 +317,13 @@ public class ConnectionClass
 			children.add(rs.getString(1));
 		}
 		new DescendantChildren().getChildren(children,0,con);
-		PreparedStatement findUserStatement=con.prepareStatement("select user_id from tbl_user_groups where group_id IN(?)");
+		PreparedStatement findUserStatement=con.prepareStatement("SELECT USER_ID FROM TBL_USER_GROUPS WHERE GROUP_ID IN(?)");
 		String parameters = StringUtils.join(children.iterator(),",");  
 		ps.setString(1, parameters );  
 		ResultSet rSet = findUserStatement.executeQuery();
 		if(!rSet.next())
 		{
-		PreparedStatement deleteGroupStatement=con.prepareStatement("delete from tbl_groups where group_id=?");
+		PreparedStatement deleteGroupStatement=con.prepareStatement("DELETE FROM TBL_GROUPS WHERE GROUP_ID=?");
 		for(String group:children)
 		{
 			deleteGroupStatement.setString(1, group);
@@ -341,4 +343,57 @@ public class ConnectionClass
 		return false;
 		
 	}
-}
+	public Groups getResult()throws Exception
+	{
+		con=dataSource.getConnection();
+		Groups groups=new Groups();
+		PreparedStatement getParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
+	
+		getParentStatement.setString(1,"NULL");
+		ResultSet parents=getParentStatement.executeQuery();
+		while(parents.next())//America,Asia
+		{
+			Group group=new Group();
+			group.setGroupId(parents.getString(1));
+			group.setGroup_name(parents.getString(2));
+			group.setParentId(parents.getString(3));
+			PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
+			ps.setString(1,parents.getString(1));
+			ResultSet rs=ps.executeQuery();
+			while(rs.next())//South,North
+			{
+				//arr.add(rs.getString(1));
+				Group sgroup=new Group();
+				sgroup.setGroupId(parents.getString(1));
+				sgroup.setGroup_name(parents.getString(2));
+				sgroup.setParentId(parents.getString(3));
+				subgroup.add(sgroup);
+			}
+			getChildren(subgroup,0);
+			group.setSubgroup(subgroup);
+			arr.add(group);
+			groups.setGroup(arr);
+		}
+		return groups;
+		}
+			public void getChildren(ArrayList<Group> children,int size) throws Exception
+			{
+				for(int i=size;i<children.size();i++)
+				{
+					PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
+					ps.setString(1, subgroup.get(i).getGroupId());
+					ResultSet rs=ps.executeQuery();
+					while(rs.next())
+					{
+						Group sgroup=new Group();
+						sgroup.setGroupId(rs.getString(1));
+						sgroup.setGroup_name(rs.getString(2));
+						sgroup.setParentId(rs.getString(3));
+						subgroup.add(sgroup);
+					}
+					getChildren(subgroup,subgroup.size()-size);
+				}
+					
+			}
+		
+	}

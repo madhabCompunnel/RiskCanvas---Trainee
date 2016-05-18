@@ -128,6 +128,23 @@ public class GroupController
 		return new Success(result);
 	}
 	
+	@RequestMapping(value="group/all")
+	/*
+	 * Method returns all groups
+	 */
+	public Groups listAll(@RequestHeader(value="alfTicket",required=false) String alfTicket, HttpServletRequest request)
+	{
+		Groups groups=null;
+		 ConnectionClass connectionClass =GetConfig.getConfig(request);
+		 try {
+			groups=connectionClass.getResult();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return groups;
+	}
+	
 	
 	@ExceptionHandler(UserException.class)
 	public ErrorResponse exceptionHandler(Exception ex) 
