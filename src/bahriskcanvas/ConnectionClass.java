@@ -81,7 +81,7 @@ public class ConnectionClass
 			for(int index=0;index<pid.length;index++)
 			{	
 				System.out.println(pval[index]);
-				if(Integer.parseInt((pval[index]).toString())==1)
+				if(((pval[index]).toString()).equals("true"))
 				{
 					value=true;
 				}
@@ -92,6 +92,7 @@ public class ConnectionClass
 				permissionList.add(new Permission(pid[index],pdesc[index],value));
 			}
 			user.setPermissions(permissionList);
+			System.out.println(permissionList);
 		}
 		/*
 		 * Generating Unique ID for the user	
@@ -110,7 +111,6 @@ public class ConnectionClass
 			if(result>0)
 			{
 				con.commit();
-				con.close();
 			}
 		}
 		else
@@ -181,6 +181,7 @@ public class ConnectionClass
 		 */
 		try
 		{
+			con.setAutoCommit(false);
 			if(creategroup.getIsChild().isEmpty() && creategroup.getIsParent().isEmpty())
 			{	
 				PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
@@ -205,7 +206,6 @@ public class ConnectionClass
 				}
 				else
 				{
-					con.setAutoCommit(false);
 					PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
 					insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 					insertStatement.setString(2,creategroup.getGroupName());
@@ -232,7 +232,7 @@ public class ConnectionClass
 				}
 			}
 		/*
-		 * check if group 
+		 * check for group with no parent but children
 		 */
 			else if(creategroup.getIsChild().equals("true") && creategroup.getIsParent().equals("false"))
 			{

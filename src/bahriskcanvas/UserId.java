@@ -11,6 +11,15 @@ import java.sql.SQLException;
 public class UserId 
 {
 	private String user_id;
+	/**
+	 * 
+	 * @param con
+	 * @param alfTicket
+	 * @return
+	 * @throws SQLException
+	 * @throws NullPointerException
+	 * @throws UserException
+	 */
 	public String getUserId(Connection con,String alfTicket)throws SQLException,NullPointerException,UserException
 	{
 		PreparedStatement getUserStatement=con.prepareStatement("select user_id from tbl_user_ticket where alf_ticket=?");

@@ -12,18 +12,32 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import bahriskcanvas.ConnectionClass;
-
+/*
+ * Class deals with the Group Operations
+ */
 @RestController
 public class GroupController 
 {
+	/**
+	 * 
+	 * @param createGroup
+	 * @param alfTicket
+	 * @param request
+	 * @return
+	 * @throws UserException
+	 * Method create is responsible for creating a group and returns success object if no exception occurs
+	 */
 	@RequestMapping(value="group/create",method=RequestMethod.POST)
 	public Success createGroup(@RequestBody CreateGroup createGroup,@RequestHeader(value="alfTicket",required=false) String alfTicket,HttpServletRequest request) throws UserException
 	{
+		//result will hold true if create group is successful
 		boolean result=false;
+		//alfTicket we receive from the request header to check if User is logged In
 		if(alfTicket==null)
 		{
 			throw new UserException("Header does not contains ticket");
 		}
+		
 		if(createGroup.getGroupName().isEmpty()||createGroup.getGroupName()==null)
 		{
 			throw new UserException("Add Group Name");
