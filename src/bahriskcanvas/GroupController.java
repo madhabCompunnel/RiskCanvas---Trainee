@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,8 +17,13 @@ import bahriskcanvas.ConnectionClass;
 public class GroupController 
 {
 	@RequestMapping(value="group/create",method=RequestMethod.POST)
-	public Success createGroup(@RequestBody CreateGroup createGroup,HttpServletRequest request) throws UserException
-	{	
+	public Success createGroup(@RequestBody CreateGroup createGroup,@RequestHeader(value="alfTicket",required=false) String alfTicket,HttpServletRequest request) throws UserException
+	{
+		boolean result=false;
+		if(alfTicket==null)
+		{
+			throw new UserException("Header does not contains ticket");
+		}
 		if(createGroup.getGroupName().isEmpty()||createGroup.getGroupName()==null)
 		{
 			throw new UserException("Add Group Name");
@@ -25,11 +31,10 @@ public class GroupController
 		else
 		{
 			 ConnectionClass connectionClass =GetConfig.getConfig(request);
-        boolean result=false;
+        
 			try
 				{
-				result = connectionClass.getResult(createGroup);
-				return new Success(result);
+				result = connectionClass.getResult(createGroup,alfTicket);
 				}
 			catch (UserException e) 
 				{
@@ -48,6 +53,7 @@ public class GroupController
 			throw new UserException(e.getMessage());
 			}
 		}
+		return new Success(result);
 	}
 	@RequestMapping(value="group/edit",method=RequestMethod.POST,consumes="application/json",produces="application/json")
 	public Success editGroup(@RequestBody EditGroup editGroup,HttpServletRequest request) throws UserException
@@ -70,7 +76,7 @@ public class GroupController
 			{
 				throw new UserException(e.getErrorMessage());
 			}
-		return new Success(result);
+			return new Success(result);
 	}
 	@RequestMapping(value="group/delete")
 	public Success deleteGroup(@RequestParam("groupId") String group_id,HttpServletRequest request) throws UserException
