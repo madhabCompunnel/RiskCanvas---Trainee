@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 public class Groups 
 {
-	private ArrayList<Group> group=new ArrayList<Group>();
+	private ArrayList<Group> groups=new ArrayList<Group>();
 
 	public ArrayList<Group> getGroup() {
-		return group;
+		return groups;
 	}
 
 	public void setGroup(ArrayList<Group> group) {
-		this.group = group;
+		this.groups = group;
 	}
 
 }

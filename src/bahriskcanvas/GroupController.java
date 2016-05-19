@@ -134,9 +134,9 @@ public class GroupController
 	/*
 	 * Method returns all groups
 	 */
-	public ArrayList<Group> listAll(@RequestHeader(value="alfTicket",required=false) String alfTicket, HttpServletRequest request)
+	public Groups listAll(@RequestHeader(value="alfTicket",required=false) String alfTicket, HttpServletRequest request)
 	{
-		ArrayList<Group> groups=null;
+		Groups groups=null;
 		 ConnectionClass connectionClass =GetConfig.getConfig(request);
 		 try {
 			groups=connectionClass.getResult();

@@ -18,6 +18,7 @@ import bahriskcanvas.User;
 public class ConnectionClass 
 {
 	// This array stores all descendant nodes of a parent
+	ArrayList<Group> groupList=null;
 	public  ArrayList<String> children=new ArrayList<String>();
 	public  ArrayList<Group> subgroup=null; 
 	private DataSource dataSource=null;
@@ -341,13 +342,13 @@ public class ConnectionClass
 		return false;
 		
 	}
-	public ArrayList<Group> getResult()throws Exception
+	public Groups getResult()throws Exception
 	{
+		groupList=new ArrayList<Group>();
 		subgroup=new ArrayList<Group>();
 		con=dataSource.getConnection();
 		Groups groups=new Groups();
-		/*PreparedStatement getParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
-	
+		PreparedStatement getParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
 		getParentStatement.setString(1,"NULL");
 		ResultSet parents=getParentStatement.executeQuery();
 		while(parents.next())//America,Asia
@@ -355,9 +356,9 @@ public class ConnectionClass
 			Group group=new Group();
 			group.setGroupId(parents.getString(1));
 			group.setGroup_name(parents.getString(2));
-			group.setParentId(parents.getString(3)); */
+			group.setParentId(parents.getString(3)); 
 			PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
-			ps.setString(1,"Group_America");
+			ps.setString(1,parents.getString(1));
 			ResultSet rs=ps.executeQuery();
 			while(rs.next())//South,North
 			{
@@ -368,10 +369,12 @@ public class ConnectionClass
 				subgroup.add(sgroup);
 			}
 			getChildren(subgroup,0);
-		//}
-		//groups.setGroup(subgroup);
-			con.close();
-		return subgroup;
+			group.setSubgroup(subgroup);
+			groupList.add(group);
+		}
+			groups.setGroup(groupList);
+		con.close();
+		return groups;
 		}
 			public void getChildren(ArrayList<Group> children,int size) throws Exception
 			{
