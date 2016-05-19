@@ -345,6 +345,7 @@ public class ConnectionClass
 	}
 	public Groups getResult()throws Exception
 	{
+		
 		con=dataSource.getConnection();
 		Groups groups=new Groups();
 		PreparedStatement getParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
@@ -370,18 +371,17 @@ public class ConnectionClass
 				subgroup.add(sgroup);
 			}
 			getChildren(subgroup,0);
-			group.setSubgroup(subgroup);
-			arr.add(group);
-			groups.setGroup(arr);
 		}
+		groups.setGroup(subgroup);
 		return groups;
 		}
 			public void getChildren(ArrayList<Group> children,int size) throws Exception
 			{
+				ArrayList<Group> temp=new ArrayList<Group>();
 				for(int i=size;i<children.size();i++)
 				{
 					PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
-					ps.setString(1, subgroup.get(i).getGroupId());
+					ps.setString(1, children.get(i).getGroupId());
 					ResultSet rs=ps.executeQuery();
 					while(rs.next())
 					{
@@ -389,9 +389,11 @@ public class ConnectionClass
 						sgroup.setGroupId(rs.getString(1));
 						sgroup.setGroup_name(rs.getString(2));
 						sgroup.setParentId(rs.getString(3));
-						subgroup.add(sgroup);
+						temp.add(sgroup);
 					}
-					getChildren(subgroup,subgroup.size()-size);
+
+					children.get(i).setSubgroup(temp);
+					getChildren(children,children.size()-size);
 				}
 					
 			}
