@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 import javax.sql.DataSource;
-
 import org.apache.commons.lang3.StringUtils;
 
 import bahriskcanvas.User;
@@ -19,9 +18,8 @@ import bahriskcanvas.User;
 public class ConnectionClass 
 {
 	// This array stores all descendant nodes of a parent
-	public static ArrayList<String> children=new ArrayList<String>();
-	public static ArrayList<Group> subgroup=new ArrayList<Group>();
-	public static ArrayList<Group> arr=new ArrayList<Group>();
+	public  ArrayList<String> children=new ArrayList<String>();
+	public  ArrayList<Group> subgroup=null; 
 	private DataSource dataSource=null;
 	private Connection con=null;
 	/**
@@ -343,12 +341,12 @@ public class ConnectionClass
 		return false;
 		
 	}
-	public Groups getResult()throws Exception
+	public ArrayList<Group> getResult()throws Exception
 	{
-		
+		subgroup=new ArrayList<Group>();
 		con=dataSource.getConnection();
 		Groups groups=new Groups();
-		PreparedStatement getParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
+		/*PreparedStatement getParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
 	
 		getParentStatement.setString(1,"NULL");
 		ResultSet parents=getParentStatement.executeQuery();
@@ -357,29 +355,29 @@ public class ConnectionClass
 			Group group=new Group();
 			group.setGroupId(parents.getString(1));
 			group.setGroup_name(parents.getString(2));
-			group.setParentId(parents.getString(3));
+			group.setParentId(parents.getString(3)); */
 			PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
-			ps.setString(1,parents.getString(1));
+			ps.setString(1,"Group_America");
 			ResultSet rs=ps.executeQuery();
 			while(rs.next())//South,North
 			{
-				//arr.add(rs.getString(1));
 				Group sgroup=new Group();
-				sgroup.setGroupId(parents.getString(1));
-				sgroup.setGroup_name(parents.getString(2));
-				sgroup.setParentId(parents.getString(3));
+				sgroup.setGroupId(rs.getString(1));
+				sgroup.setGroup_name(rs.getString(2));
+				sgroup.setParentId(rs.getString(3));
 				subgroup.add(sgroup);
 			}
 			getChildren(subgroup,0);
-		}
-		groups.setGroup(subgroup);
-		return groups;
+		//}
+		//groups.setGroup(subgroup);
+			con.close();
+		return subgroup;
 		}
 			public void getChildren(ArrayList<Group> children,int size) throws Exception
 			{
-				ArrayList<Group> temp=new ArrayList<Group>();
 				for(int i=size;i<children.size();i++)
 				{
+					ArrayList<Group> temp=new ArrayList<Group>();
 					PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
 					ps.setString(1, children.get(i).getGroupId());
 					ResultSet rs=ps.executeQuery();
@@ -391,11 +389,36 @@ public class ConnectionClass
 						sgroup.setParentId(rs.getString(3));
 						temp.add(sgroup);
 					}
-
 					children.get(i).setSubgroup(temp);
+					getSubChildren(temp,0);
 					getChildren(children,children.size()-size);
-				}
-					
+				}		
 			}
-		
-	}
+			public void getSubChildren(ArrayList<Group> temp,int size)throws Exception
+			{
+				
+				for(int i=size;i<temp.size();i++)
+				{
+					PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
+					ps.setString(1, temp.get(i).getGroupId());
+					ResultSet rs=ps.executeQuery();
+					ArrayList<Group> temp1=new ArrayList<Group>();
+					while(rs.next())
+					{
+						
+						Group g=new Group();
+						g.setGroupId(rs.getString(1));
+						g.setGroup_name(rs.getString(2));
+						g.setParentId(rs.getString(3));
+						temp1.add(g);
+						
+					}
+						temp.get(i).setSubgroup(temp1);
+						getSubChildren(temp1,0);
+						getChildren(temp,temp.size()-size);
+					
+					}
+				}
+				
+			
+}

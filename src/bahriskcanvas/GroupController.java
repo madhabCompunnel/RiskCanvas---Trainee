@@ -1,6 +1,8 @@
 package bahriskcanvas;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -132,9 +134,9 @@ public class GroupController
 	/*
 	 * Method returns all groups
 	 */
-	public Groups listAll(@RequestHeader(value="alfTicket",required=false) String alfTicket, HttpServletRequest request)
+	public ArrayList<Group> listAll(@RequestHeader(value="alfTicket",required=false) String alfTicket, HttpServletRequest request)
 	{
-		Groups groups=null;
+		ArrayList<Group> groups=null;
 		 ConnectionClass connectionClass =GetConfig.getConfig(request);
 		 try {
 			groups=connectionClass.getResult();
