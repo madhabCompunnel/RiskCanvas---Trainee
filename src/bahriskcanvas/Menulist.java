@@ -9,6 +9,27 @@ public class Menulist {
 	private String description;
 	private String value;
 	private List<RolePermission> permissions = new ArrayList<RolePermission>();
+	
+	public Menulist()
+	{}
+	
+	/**
+	 * @param id
+	 * @param description
+	 * @param value
+	 */
+	public Menulist(String id, String description, String value) {
+		this.id=id;
+		this.description=description;
+		this.value=value;
+	}
+	
+	public Menulist(String id, String description, String value,List<RolePermission> permissions) {
+		this.id=id;
+		this.description=description;
+		this.value=value;
+		this.permissions=permissions;
+	}
 	/**
 	* @return
 	* The id
