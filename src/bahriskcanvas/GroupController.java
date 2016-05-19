@@ -128,6 +128,46 @@ public class GroupController
 		return new Success(result);
 	}
 	
+	@RequestMapping(value="group/all")
+	/**
+	 * @param alfTicket
+	 * @param request
+	 * @return
+	 * @throws UserException
+	 * @throws SQLException
+	 * @throws NullPointerException
+	 * Method returns all Groups
+	 */
+	public Groups listAll(@RequestHeader(value="alfTicket",required=false) String alfTicket, HttpServletRequest request) throws UserException,SQLException,NullPointerException
+	{
+		Groups groups=null;
+		if(alfTicket==null)
+		{
+			throw new UserException("Header does not contains ticket");
+		}
+		 ConnectionClass connectionClass =GetConfig.getConfig(request);
+		 try 
+		 {
+			groups=connectionClass.getGroupList(alfTicket);
+		 }
+		 catch (UserException e) 
+		 {
+			throw new UserException(e.getErrorMessage());
+		 }
+		 catch (SQLException e) 
+		 {
+			throw new UserException(e.getMessage());
+		 }
+		 catch (NullPointerException e) 
+		 {
+			throw new UserException(e.getMessage());
+		 } 
+		 catch (Exception e) 
+		 {
+			throw new UserException(e.getMessage());
+		 }
+		return groups;
+	}
 	
 	@ExceptionHandler(UserException.class)
 	public ErrorResponse exceptionHandler(Exception ex) 
