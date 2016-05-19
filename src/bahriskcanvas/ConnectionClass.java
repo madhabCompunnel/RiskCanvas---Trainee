@@ -17,9 +17,11 @@ import bahriskcanvas.User;
  */
 public class ConnectionClass 
 {
-	// This array stores all descendant nodes of a parent
-	ArrayList<Group> groupList=null;
+	//	List stores all descendant nodes of a parent
 	public  ArrayList<String> children=new ArrayList<String>();
+	//	List  stores all groups
+	ArrayList<Group> groupList=null;
+	//	List stores all subgroups
 	public  ArrayList<Group> subgroup=null; 
 	private DataSource dataSource=null;
 	private Connection con=null;
@@ -39,7 +41,7 @@ public class ConnectionClass
 	 * @throws SQLException
 	 * @throws NullPointerException
 	 * @throws UserException
-	 * Method
+	 * Method returns the User Object to the LoginController
 	 */
 	public User getUser(Credentials credentials)throws SQLException,NullPointerException, UserException
 	{
@@ -137,6 +139,7 @@ public class ConnectionClass
 		}
 		return user;
 	}
+	
 	/**
 	 * 
 	 * @param alfTicket
@@ -161,6 +164,7 @@ public class ConnectionClass
 			throw new UserException("Session no longer Exist! Kindly login again.");
 		}
 	}
+	
 	/**
 	 * 
 	 * @param creategroup
@@ -189,7 +193,7 @@ public class ConnectionClass
 				insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 				insertStatement.setString(2,creategroup.getGroupName());
 				insertStatement.setString(3,"NULL");
-				insertStatement.setString(4,new UserId().getUserId(con,alfTicket));
+				insertStatement.setInt(4,new UserId().getUserId(con,alfTicket));
 				int insertResult=insertStatement.executeUpdate();
 				if(insertResult>0)
 				{
@@ -211,7 +215,7 @@ public class ConnectionClass
 					insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 					insertStatement.setString(2,creategroup.getGroupName());
 					insertStatement.setString(3,"NULL");
-					insertStatement.setString(4,new UserId().getUserId(con,alfTicket));
+					insertStatement.setInt(4,new UserId().getUserId(con,alfTicket));
 					int insertResult=insertStatement.executeUpdate();
 					insertStatement.close();
 					if(insertResult>0)
@@ -245,7 +249,7 @@ public class ConnectionClass
 				insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 				insertStatement.setString(2,creategroup.getGroupName());
 				insertStatement.setString(3,creategroup.getSelectedGroupName());
-				insertStatement.setString(4,new UserId().getUserId(con,alfTicket));
+				insertStatement.setInt(4,new UserId().getUserId(con,alfTicket));
 				int insertResult=insertStatement.executeUpdate();
 					if(insertResult>0)
 					{
@@ -268,6 +272,7 @@ public class ConnectionClass
 		}
 		return result;
 	}
+	
 	/**
 	 * 
 	 * @param editGroup
@@ -299,6 +304,7 @@ public class ConnectionClass
 		con.close();
 		return result;
 	}
+	
 	/**
 	 * 
 	 * @param group_id
@@ -336,97 +342,108 @@ public class ConnectionClass
 		return false;
 		}
 	}
+	
 	public boolean getResult(MoveGroup creategroup)
 	{
 		//code
 		return false;
 		
 	}
-	public Groups getResult()throws Exception
-	{
-		groupList=new ArrayList<Group>();
 	
+	/**
+	 * 
+	 * @return
+	 * @throws Exception
+	 * Method returns List of All groups with its subgroups
+	 */
+	public Groups getGroupList(String alfTicket)throws Exception
+	{
 		con=dataSource.getConnection();
-		Groups groups=new Groups();
-		PreparedStatement getParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
-		getParentStatement.setString(1,"NULL");
-		ResultSet parents=getParentStatement.executeQuery();
-		while(parents.next())
+		if(new UserId().getUserId(con,alfTicket)!=0)
 		{
-			subgroup=new ArrayList<Group>();
-			Group group=new Group();
-			group.setGroupId(parents.getString(1));
-			group.setUserCount(UserCount.getUserCount(con, parents.getString(1)));
-			group.setGroup_name(parents.getString(2));
-			group.setParentId(parents.getString(3)); 
+			groupList=new ArrayList<Group>();
+			
+			Groups groups=new Groups();
+			PreparedStatement getParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
+			getParentStatement.setString(1,"NULL");
+			ResultSet parents=getParentStatement.executeQuery();
+			while(parents.next())
+			{
+				subgroup=new ArrayList<Group>();
+				Group group=new Group();
+				group.setGroupId(parents.getString(1));
+				group.setUserCount(UserCount.getUserCount(con, parents.getString(1)));
+				group.setGroup_name(parents.getString(2));
+				group.setParentId(parents.getString(3)); 
+				PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
+				ps.setString(1,parents.getString(1));
+				ResultSet rs=ps.executeQuery();
+				while(rs.next())//South,North
+				{
+					Group sgroup=new Group();
+					sgroup.setGroupId(rs.getString(1));
+					sgroup.setUserCount(UserCount.getUserCount(con, rs.getString(1)));
+					sgroup.setGroup_name(rs.getString(2));
+					sgroup.setParentId(rs.getString(3));
+					subgroup.add(sgroup);
+				}
+				getChildren(subgroup,0);
+				group.setSubgroup(subgroup);
+				groupList.add(group);
+			}
+			groups.setGroup(groupList);
+			con.close();
+			return groups;
+		}
+		else
+		{
+			throw new UserException("Session Expired! login to continue");
+		}
+	}
+	public void getChildren(ArrayList<Group> children,int size) throws Exception
+	{
+		for(int i=size;i<children.size();i++)
+		{
+			ArrayList<Group> temp=new ArrayList<Group>();
 			PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
-			ps.setString(1,parents.getString(1));
+			ps.setString(1, children.get(i).getGroupId());
 			ResultSet rs=ps.executeQuery();
-			while(rs.next())//South,North
+			while(rs.next())
 			{
 				Group sgroup=new Group();
 				sgroup.setGroupId(rs.getString(1));
 				sgroup.setUserCount(UserCount.getUserCount(con, rs.getString(1)));
 				sgroup.setGroup_name(rs.getString(2));
 				sgroup.setParentId(rs.getString(3));
-				subgroup.add(sgroup);
+				temp.add(sgroup);
 			}
-			getChildren(subgroup,0);
-			group.setSubgroup(subgroup);
-			groupList.add(group);
-		}
-		groups.setGroup(groupList);
-		con.close();
-		return groups;
-		}
-			public void getChildren(ArrayList<Group> children,int size) throws Exception
+			children.get(i).setSubgroup(temp);
+			getSubChildren(temp,0);
+			getChildren(children,children.size()-size);
+		}		
+	}
+	public void getSubChildren(ArrayList<Group> temp,int size)throws Exception
+	{
+		for(int i=size;i<temp.size();i++)
+		{
+			PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
+			ps.setString(1, temp.get(i).getGroupId());
+			ResultSet rs=ps.executeQuery();
+			ArrayList<Group> temp1=new ArrayList<Group>();
+			while(rs.next())
 			{
-				for(int i=size;i<children.size();i++)
-				{
-					ArrayList<Group> temp=new ArrayList<Group>();
-					PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
-					ps.setString(1, children.get(i).getGroupId());
-					ResultSet rs=ps.executeQuery();
-					while(rs.next())
-					{
-						Group sgroup=new Group();
-						sgroup.setGroupId(rs.getString(1));
-						sgroup.setUserCount(UserCount.getUserCount(con, rs.getString(1)));
-						sgroup.setGroup_name(rs.getString(2));
-						sgroup.setParentId(rs.getString(3));
-						temp.add(sgroup);
-					}
-					children.get(i).setSubgroup(temp);
-					getSubChildren(temp,0);
-					getChildren(children,children.size()-size);
-				}		
+				Group g=new Group();
+				g.setGroupId(rs.getString(1));
+				g.setUserCount(UserCount.getUserCount(con, rs.getString(1)));
+				g.setGroup_name(rs.getString(2));
+				g.setParentId(rs.getString(3));
+				temp1.add(g);
+				
 			}
-			public void getSubChildren(ArrayList<Group> temp,int size)throws Exception
-			{
-				
-				for(int i=size;i<temp.size();i++)
-				{
-					PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
-					ps.setString(1, temp.get(i).getGroupId());
-					ResultSet rs=ps.executeQuery();
-					ArrayList<Group> temp1=new ArrayList<Group>();
-					while(rs.next())
-					{
-						
-						Group g=new Group();
-						g.setGroupId(rs.getString(1));
-						g.setUserCount(UserCount.getUserCount(con, rs.getString(1)));
-						g.setGroup_name(rs.getString(2));
-						g.setParentId(rs.getString(3));
-						temp1.add(g);
-						
-					}
-						temp.get(i).setSubgroup(temp1);
-						getSubChildren(temp1,0);
-						getChildren(temp,temp.size()-size);
-					
-					}
-				}
-				
-			
+			temp.get(i).setSubgroup(temp1);
+			getSubChildren(temp1,0);
+			getChildren(temp,temp.size()-size);
+		
+		}
+	}	
 }
