@@ -1,6 +1,3 @@
-/**
- * Class for getting and setting role based permissions
- */
 package bahriskcanvas;
 
 public class RolePermission {
@@ -8,6 +5,15 @@ public class RolePermission {
 	private String description;
 	private String value;
 
+	public RolePermission()
+	{
+	}
+	
+	public RolePermission(String id, String description, String value) {
+		this.id=id;
+		this.description=description;
+		this.value=value;
+	}
 	/**
 	* @return
 	* The id

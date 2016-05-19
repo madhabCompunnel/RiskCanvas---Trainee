@@ -1,0 +1,9 @@
+diff a/.classpath b/.classpath	(rejected hunks)
+@@ -22,7 +22,6 @@
+ 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+ 		</attributes>
+ 	</classpathentry>
+-	<classpathentry kind="lib" path="D:/jars/commons-lang3-3.4.jar"/>
+ 	<classpathentry kind="lib" path="E:/StudyMaterial/jars/commons-lang3-3.4.jar"/>
+ 	<classpathentry kind="output" path="target/classes"/>
+ </classpath>
