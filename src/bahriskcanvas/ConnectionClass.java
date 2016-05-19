@@ -345,16 +345,18 @@ public class ConnectionClass
 	public Groups getResult()throws Exception
 	{
 		groupList=new ArrayList<Group>();
-		subgroup=new ArrayList<Group>();
+	
 		con=dataSource.getConnection();
 		Groups groups=new Groups();
 		PreparedStatement getParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
 		getParentStatement.setString(1,"NULL");
 		ResultSet parents=getParentStatement.executeQuery();
-		while(parents.next())//America,Asia
+		while(parents.next())
 		{
+			subgroup=new ArrayList<Group>();
 			Group group=new Group();
 			group.setGroupId(parents.getString(1));
+			group.setUserCount(UserCount.getUserCount(con, parents.getString(1)));
 			group.setGroup_name(parents.getString(2));
 			group.setParentId(parents.getString(3)); 
 			PreparedStatement ps=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
@@ -364,6 +366,7 @@ public class ConnectionClass
 			{
 				Group sgroup=new Group();
 				sgroup.setGroupId(rs.getString(1));
+				sgroup.setUserCount(UserCount.getUserCount(con, rs.getString(1)));
 				sgroup.setGroup_name(rs.getString(2));
 				sgroup.setParentId(rs.getString(3));
 				subgroup.add(sgroup);
@@ -372,7 +375,7 @@ public class ConnectionClass
 			group.setSubgroup(subgroup);
 			groupList.add(group);
 		}
-			groups.setGroup(groupList);
+		groups.setGroup(groupList);
 		con.close();
 		return groups;
 		}
@@ -388,6 +391,7 @@ public class ConnectionClass
 					{
 						Group sgroup=new Group();
 						sgroup.setGroupId(rs.getString(1));
+						sgroup.setUserCount(UserCount.getUserCount(con, rs.getString(1)));
 						sgroup.setGroup_name(rs.getString(2));
 						sgroup.setParentId(rs.getString(3));
 						temp.add(sgroup);
@@ -411,6 +415,7 @@ public class ConnectionClass
 						
 						Group g=new Group();
 						g.setGroupId(rs.getString(1));
+						g.setUserCount(UserCount.getUserCount(con, rs.getString(1)));
 						g.setGroup_name(rs.getString(2));
 						g.setParentId(rs.getString(3));
 						temp1.add(g);
