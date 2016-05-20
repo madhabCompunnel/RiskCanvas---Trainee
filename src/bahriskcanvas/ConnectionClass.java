@@ -174,103 +174,110 @@ public class ConnectionClass
 	 */
 	public boolean getResult(CreateGroup creategroup,String alfTicket)throws SQLException, UserException,NullPointerException,Exception
 	{
-		con=dataSource.getConnection();
-		/*
-		 * result is set to true if group creation is successful
-		 */
-		boolean result=false;
-		/*
-		 * check for group with neither parent nor children
-		 */
-		try
+		if(new UserId().getUserId(con,alfTicket)!=0)
 		{
-			con.setAutoCommit(false);
-			if(creategroup.getIsChild().isEmpty() && creategroup.getIsParent().isEmpty())
-			{	
-				PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
-				insertStatement.setString(1, "Group_"+creategroup.getGroupName());
-				insertStatement.setString(2,creategroup.getGroupName());
-				insertStatement.setString(3,"NULL");
-				insertStatement.setInt(4,new UserId().getUserId(con,alfTicket));
-				int insertResult=insertStatement.executeUpdate();
-				if(insertResult>0)
-				{
-					con.commit();
-					result=true;	
-				}
-			}
-		/*
-		 *  check for group with parent but no children
-		 */
-			else if(creategroup.getIsParent().equals("true") && creategroup.getIsChild().equals("false"))
+			con=dataSource.getConnection();
+			/*
+			 * result is set to true if group creation is successful
+			 */
+			boolean result=false;
+			/*
+			 * check for group with neither parent nor children
+			 */
+			try
 			{
-				if(creategroup.getSelectedGroupName().isEmpty()||creategroup.getSelectedGroupName()==null)
-				{
-					throw new UserException("SelectedGroupName cannot be left Empty");
-				}
-				else
-				{
+				con.setAutoCommit(false);
+				if(creategroup.getIsChild().isEmpty() && creategroup.getIsParent().isEmpty())
+				{	
 					PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
 					insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 					insertStatement.setString(2,creategroup.getGroupName());
 					insertStatement.setString(3,"NULL");
 					insertStatement.setInt(4,new UserId().getUserId(con,alfTicket));
 					int insertResult=insertStatement.executeUpdate();
-					insertStatement.close();
-					if(insertResult>0)
-						{
-						PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set parent_id=? where group_id=?"); 
-						updateStatement.setString(1, "Group_"+creategroup.getGroupName());
-						updateStatement.setString(2, creategroup.getSelectedGroupName());
-						int updateResult=updateStatement.executeUpdate();
-						if(updateResult>0)
-							{
-							con.commit();
-							result=true;
-							}
-						else
-							{
-							throw new UserException("Sorry SelectedGroupName does not exist");
-							}
-						}
-				}
-			}
-		/*
-		 * check for group with no parent but children
-		 */
-			else if(creategroup.getIsChild().equals("true") && creategroup.getIsParent().equals("false"))
-			{
-				if(creategroup.getSelectedGroupName().isEmpty()||creategroup.getSelectedGroupName()==null)
-				{
-					throw new UserException("SelectedGroupName cannot be left Empty");
-				}
-				PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
-				insertStatement.setString(1, "Group_"+creategroup.getGroupName());
-				insertStatement.setString(2,creategroup.getGroupName());
-				insertStatement.setString(3,creategroup.getSelectedGroupName());
-				insertStatement.setInt(4,new UserId().getUserId(con,alfTicket));
-				int insertResult=insertStatement.executeUpdate();
 					if(insertResult>0)
 					{
 						con.commit();
-						result=true;
+						result=true;	
+					}
+				}
+			/*
+			 *  check for group with parent but no children
+			 */
+				else if(creategroup.getIsParent().equals("true") && creategroup.getIsChild().equals("false"))
+				{
+					if(creategroup.getSelectedGroupName().isEmpty()||creategroup.getSelectedGroupName()==null)
+					{
+						throw new UserException("SelectedGroupName cannot be left Empty");
 					}
 					else
 					{
-						throw new UserException("Sorry SelectedGroupName does not exist");
+						PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
+						insertStatement.setString(1, "Group_"+creategroup.getGroupName());
+						insertStatement.setString(2,creategroup.getGroupName());
+						insertStatement.setString(3,"NULL");
+						insertStatement.setInt(4,new UserId().getUserId(con,alfTicket));
+						int insertResult=insertStatement.executeUpdate();
+						insertStatement.close();
+						if(insertResult>0)
+							{
+							PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set parent_id=? where group_id=?"); 
+							updateStatement.setString(1, "Group_"+creategroup.getGroupName());
+							updateStatement.setString(2, creategroup.getSelectedGroupName());
+							int updateResult=updateStatement.executeUpdate();
+							if(updateResult>0)
+								{
+								con.commit();
+								result=true;
+								}
+							else
+								{
+								throw new UserException("Sorry SelectedGroupName does not exist");
+								}
+							}
 					}
+				}
+			/*
+			 * check for group with no parent but children
+			 */
+				else if(creategroup.getIsChild().equals("true") && creategroup.getIsParent().equals("false"))
+				{
+					if(creategroup.getSelectedGroupName().isEmpty()||creategroup.getSelectedGroupName()==null)
+					{
+						throw new UserException("SelectedGroupName cannot be left Empty");
+					}
+					PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
+					insertStatement.setString(1, "Group_"+creategroup.getGroupName());
+					insertStatement.setString(2,creategroup.getGroupName());
+					insertStatement.setString(3,creategroup.getSelectedGroupName());
+					insertStatement.setInt(4,new UserId().getUserId(con,alfTicket));
+					int insertResult=insertStatement.executeUpdate();
+						if(insertResult>0)
+						{
+							con.commit();
+							result=true;
+						}
+						else
+						{
+							throw new UserException("Sorry SelectedGroupName does not exist");
+						}
+				}
 			}
+			catch(SQLException e)
+			{
+			con.rollback();
+			throw new UserException(e.getMessage());
+			}
+			finally
+			{
+			con.close();
+			}
+			return result;
 		}
-		catch(SQLException e)
+		else
 		{
-		con.rollback();
-		throw new UserException(e.getMessage());
+			throw new UserException("Session Expired! login to continue");
 		}
-		finally
-		{
-		con.close();
-		}
-		return result;
 	}
 	
 	/**
@@ -282,27 +289,34 @@ public class ConnectionClass
 	 * @throws UserException
 	 * Method to Edit group
 	 */
-	public boolean getResult(EditGroup editGroup)throws SQLException,NullPointerException,UserException
+	public boolean getResult(EditGroup editGroup,String alfTicket)throws SQLException,NullPointerException,UserException
 	{
-		con=dataSource.getConnection();
-		/*
-		 * result is set to true if editing group is successful
-		 */
-		boolean result=false;
-		PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set group_name=? where group_id=?"); 
-		updateStatement.setString(1, "Group_"+editGroup.getGroupName());
-		updateStatement.setString(2, editGroup.getGroupId());
-		int updateResult=updateStatement.executeUpdate();
-		if(updateResult>0)
-			{
-				result=true;
-			}
+		if(new UserId().getUserId(con,alfTicket)!=0)
+		{
+			con=dataSource.getConnection();
+			/*
+			 * result is set to true if editing group is successful
+			 */
+			boolean result=false;
+			PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set group_name=? where group_id=?"); 
+			updateStatement.setString(1,editGroup.getGroupName());
+			updateStatement.setString(2, editGroup.getGroupId());
+			int updateResult=updateStatement.executeUpdate();
+			if(updateResult>0)
+				{
+					result=true;
+				}
+			else
+				{
+					result=false;
+				}
+			con.close();
+			return result;
+		}
 		else
-			{
-				result=false;
-			}
-		con.close();
-		return result;
+		{
+			throw new UserException("Session Expired! login to continue");
+		}
 	}
 	
 	/**
@@ -312,38 +326,45 @@ public class ConnectionClass
 	 * @throws Exception 
 	 * Method takes the group_id as input and returns true if group get deleted
 	 */
-	public boolean getResult(String group_id)throws NullPointerException,UserException,SQLException,Exception
+	public boolean getResult(String group_id,String alfTicket)throws NullPointerException,UserException,SQLException,Exception
 	{
-		con=dataSource.getConnection();
-		con.setAutoCommit(false);
-		children=new ArrayList<String>();
-		PreparedStatement ps=con.prepareStatement("select group_id from tbl_groups where parent_id=?");
-		ps.setString(1,group_id);
-		ResultSet rs=ps.executeQuery();
-			while(rs.next())
+		if(new UserId().getUserId(con,alfTicket)!=0)
+		{
+			con=dataSource.getConnection();
+			con.setAutoCommit(false);
+			children=new ArrayList<String>();
+			PreparedStatement ps=con.prepareStatement("select group_id from tbl_groups where parent_id=?");
+			ps.setString(1,group_id);
+			ResultSet rs=ps.executeQuery();
+				while(rs.next())
+					{
+						children.add(rs.getString(1));
+					}
+			new DescendantChildren().getChildren(children,0,con);
+			children.add(group_id);
+			PreparedStatement deleteGroupStatement=con.prepareStatement("delete from tbl_groups where group_id=?");
+			for(String group:children)
 				{
-					children.add(rs.getString(1));
+					deleteGroupStatement.setString(1, group);
+					deleteGroupStatement.addBatch();
 				}
-		new DescendantChildren().getChildren(children,0,con);
-		children.add(group_id);
-		PreparedStatement deleteGroupStatement=con.prepareStatement("delete from tbl_groups where group_id=?");
-		for(String group:children)
-			{
-				deleteGroupStatement.setString(1, group);
-				deleteGroupStatement.addBatch();
-			}
-		try
-			{
-				deleteGroupStatement.executeBatch();
-				con.commit();
-				con.close();
-				return true;
-			}
-		catch(SQLException e)
-			{
-				con.rollback();
-				throw new UserException("sorry user is assigned cannot delete this group");
-			}
+			try
+				{
+					deleteGroupStatement.executeBatch();
+					con.commit();
+					con.close();
+					return true;
+				}
+			catch(SQLException e)
+				{
+					con.rollback();
+					throw new UserException("sorry user is assigned cannot delete this group");
+				}
+		}
+		else
+		{
+			throw new UserException("Session Expired! login to continue");
+		}
 	}
 	public boolean getResult(MoveGroup creategroup)
 	{
