@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 import javax.sql.DataSource;
-import org.apache.commons.lang3.StringUtils;
 import bahriskcanvas.User;
 /*
  * Class establishes connection and retrieve data from the database and pass the result to respective Controller
@@ -311,43 +310,41 @@ public class ConnectionClass
 	 * @param group_id
 	 * @return
 	 * @throws Exception 
+	 * Method takes the group_id as input and returns true if group get deleted
 	 */
 	public boolean getResult(String group_id)throws NullPointerException,UserException,SQLException,Exception
 	{
 		con=dataSource.getConnection();
+		con.setAutoCommit(false);
 		children=new ArrayList<String>();
-		System.out.println(group_id);
 		PreparedStatement ps=con.prepareStatement("select group_id from tbl_groups where parent_id=?");
 		ps.setString(1,group_id);
 		ResultSet rs=ps.executeQuery();
-		children.add(group_id);
 			while(rs.next())
 				{
 					children.add(rs.getString(1));
 				}
-			System.out.println(children);
 		new DescendantChildren().getChildren(children,0,con);
-		PreparedStatement findUserStatement=con.prepareStatement("select user_id from tbl_user_groups where group_id in(?)");
-		String parameters = StringUtils.join(children.iterator(),",");  
-		findUserStatement.setString(1, parameters );  
-		ResultSet rSet = findUserStatement.executeQuery();
-			if(rSet.next())
+		children.add(group_id);
+		PreparedStatement deleteGroupStatement=con.prepareStatement("delete from tbl_groups where group_id=?");
+		for(String group:children)
 			{
-				throw new UserException("Sorry cannot delete this group");
+				deleteGroupStatement.setString(1, group);
+				deleteGroupStatement.addBatch();
 			}
-		else
+		try
 			{
-			PreparedStatement deleteGroupStatement=con.prepareStatement("delete from tbl_groups where group_id=?");
-			for(String group:children)
-				{
-					deleteGroupStatement.setString(1, group);
-					deleteGroupStatement.addBatch();
-				}
-			deleteGroupStatement.executeBatch();
-			return true;
+				deleteGroupStatement.executeBatch();
+				con.commit();
+				con.close();
+				return true;
+			}
+		catch(SQLException e)
+			{
+				con.rollback();
+				throw new UserException("sorry user is assigned cannot delete this group");
 			}
 	}
-	
 	public boolean getResult(MoveGroup creategroup)
 	{
 		//code
@@ -405,6 +402,14 @@ public class ConnectionClass
 			throw new UserException("Session Expired! login to continue");
 		}
 	}
+	
+	/**
+	 * 
+	 * @param children
+	 * @param size
+	 * @throws Exception
+	 * Method  adds up all the child nodes to the 'children' ArrayList
+	 */
 	public void getChildren(ArrayList<Group> children,int size) throws Exception
 	{
 		for(int i=size;i<children.size();i++)
@@ -427,6 +432,14 @@ public class ConnectionClass
 			getChildren(children,children.size()-size);
 		}		
 	}
+	
+	/**
+	 * 
+	 * @param temp
+	 * @param size
+	 * @throws Exception
+	 * Mehtod adds up child's sub nodes
+	 */
 	public void getSubChildren(ArrayList<Group> temp,int size)throws Exception
 	{
 		for(int i=size;i<temp.size();i++)
