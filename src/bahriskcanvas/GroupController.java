@@ -69,6 +69,15 @@ public class GroupController
 		}
 		return new Success(result);
 	}
+	
+	/**
+	 * 
+	 * @param editGroup
+	 * @param request
+	 * @return
+	 * @throws UserException
+	 * 
+	 */
 	@RequestMapping(value="group/edit",method=RequestMethod.POST,consumes="application/json",produces="application/json")
 	public Success editGroup(@RequestBody EditGroup editGroup,HttpServletRequest request) throws UserException
 	{
@@ -92,8 +101,16 @@ public class GroupController
 			}
 			return new Success(result);
 	}
+	
+	/**
+	 * 
+	 * @param group_id
+	 * @param request
+	 * @return
+	 * @throws UserException
+	 */
 	@RequestMapping(value="group/delete")
-	public Success deleteGroup(@RequestParam("groupId") String group_id,HttpServletRequest request) throws UserException
+	public Success deleteGroup(@RequestParam("groupId") String group_id,HttpServletRequest request) throws Exception
 	{
 		if(group_id==null||group_id.isEmpty())
 		{
@@ -128,7 +145,6 @@ public class GroupController
 		return new Success(result);
 	}
 	
-	@RequestMapping(value="group/all")
 	/**
 	 * @param alfTicket
 	 * @param request
@@ -138,6 +154,7 @@ public class GroupController
 	 * @throws NullPointerException
 	 * Method returns all Groups
 	 */
+	@RequestMapping(value="group/all")
 	public Groups listAll(@RequestHeader(value="alfTicket",required=false) String alfTicket, HttpServletRequest request) throws UserException,SQLException,NullPointerException
 	{
 		Groups groups=null;
