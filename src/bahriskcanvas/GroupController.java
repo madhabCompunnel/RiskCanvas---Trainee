@@ -79,13 +79,21 @@ public class GroupController
 	 * 
 	 */
 	@RequestMapping(value="group/edit",method=RequestMethod.POST,consumes="application/json",produces="application/json")
-	public Success editGroup(@RequestBody EditGroup editGroup,HttpServletRequest request) throws UserException
+	public Success editGroup(@RequestHeader(value="alfTicket",required=false) String alfTicket,@RequestBody EditGroup editGroup,HttpServletRequest request) throws UserException
 	{
-		 ConnectionClass connectionClass =GetConfig.getConfig(request);
+		if(alfTicket==null)
+		{
+			throw new UserException("Header does not contains ticket");
+		}
+		if((editGroup.getGroupId()==null||editGroup.getGroupId().isEmpty())&& editGroup.getGroupName()==null||editGroup.getGroupName().isEmpty())
+		{
+			throw new UserException("check for group_Id and groupName,fields cannot be left empty");
+		}
+		ConnectionClass connectionClass =GetConfig.getConfig(request);
         boolean result=false;
 			try 
 			{
-				result = connectionClass.getResult(editGroup);
+				result = connectionClass.getResult(editGroup,alfTicket);
 			} 
 			catch (NullPointerException e) 
 			{
@@ -110,8 +118,12 @@ public class GroupController
 	 * @throws UserException
 	 */
 	@RequestMapping(value="group/delete")
-	public Success deleteGroup(@RequestParam("groupId") String group_id,HttpServletRequest request) throws Exception
+	public Success deleteGroup(@RequestHeader(value="alfTicket",required=false) String alfTicket,@RequestParam("groupId") String group_id,HttpServletRequest request) throws Exception
 	{
+		if(alfTicket==null)
+		{
+			throw new UserException("Header does not contains ticket");
+		}
 		if(group_id==null||group_id.isEmpty())
 		{
 		throw new UserException("groupId cannot be left empty");	
@@ -121,7 +133,7 @@ public class GroupController
 		ConnectionClass connectionClass =GetConfig.getConfig(request);
         boolean result=false;
 			try {
-				result = connectionClass.getResult(group_id);
+				result = connectionClass.getResult(group_id,alfTicket);
 				}
 			catch (NullPointerException e)				
 				{
@@ -140,7 +152,7 @@ public class GroupController
 	}
 	public Success moveGroup(@RequestBody MoveGroup moveGroup,HttpServletRequest request)
 	{
-		 ConnectionClass connectionClass =GetConfig.getConfig(request);
+		ConnectionClass connectionClass =GetConfig.getConfig(request);
         boolean result=connectionClass.getResult(moveGroup);
 		return new Success(result);
 	}
