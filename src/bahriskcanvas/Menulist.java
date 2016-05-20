@@ -1,4 +1,4 @@
-//class for menulist
+//class for menuList
 package bahriskcanvas;
 
 import java.util.ArrayList;

@@ -43,16 +43,15 @@ public class RoleController
 	{	
 		roleinput.setAlf_ticket(ticket);//setting createdBy property in CreateRoleInput class
 		CreateRoleOutput success=new CreateRoleOutput();
-		int size=roleinput.getMenulist().get(0).getPermissions().size();//to get size of the menuList array in input JSON
-		
-		VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
-	    verify.isboolean(roleinput);
+		int menusize=roleinput.getMenulist().size();
+		//VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
+	    //verify.isboolean(roleinput);
 		
 		/**********************Setting context for retrieving the configuration file**********************/
 		createroleservice = GetConfig.getConfigRole(req);//Bean for setting database configurations
 		try 
 		{
-			boolean output=createroleservice.insert(roleinput,size);
+			boolean output=createroleservice.insert(roleinput,menusize);
 			success.setSuccess(output);
 		} 
 		catch (SQLException e) 

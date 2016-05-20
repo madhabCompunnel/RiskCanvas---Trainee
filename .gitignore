@@ -1,0 +1,4 @@
+*.mf
+*.MF
+target/classes/.gitignore
+target/m2e-wtp/web-resources/META-INF/maven/risk-canvas/risk-canvas/pom.properties

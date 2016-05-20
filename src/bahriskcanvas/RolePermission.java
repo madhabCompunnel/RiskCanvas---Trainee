@@ -5,10 +5,19 @@ public class RolePermission {
 	private String description;
 	private String value;
 
+	/**
+	 * Empty constructor
+	 */
 	public RolePermission()
 	{
 	}
 	
+	/**
+	 * @param id
+	 * @param description
+	 * @param value
+	 * Constructor with arguments
+	 */
 	public RolePermission(String id, String description, String value) {
 		this.id=id;
 		this.description=description;

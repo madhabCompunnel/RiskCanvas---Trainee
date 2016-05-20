@@ -46,7 +46,7 @@ public class CreateRoleService
 /*****************************************************************************************************************************************************/	
 /*****************************************************       FOR CREATING NEW ROLE      **************************************************************/
 /*****************************************************************************************************************************************************/
-	public boolean insert(CreateRoleInput createinput,int size) throws SQLException
+	public boolean insert(CreateRoleInput createinput,int menusize) throws SQLException
 	{
 		Boolean success;
 		CheckRoleName checkrolename=new CheckRoleName();//method for checking if roleName already exists or if roleId(if already exists) is legitimate
@@ -83,28 +83,34 @@ public class CreateRoleService
 			ps1.setString(7,user);
 			ps1.executeUpdate();//executing query
 
-			
+			for(int i=0;i<menusize;i++)
+			{
 		    ps1 = conn.prepareStatement(sql2);
 		    ps1.setString(1, roleid);
-		    ps1.setString(2, createinput.getMenulist().get(0).getId());
-		    ps1.setString(3, createinput.getMenulist().get(0).getDescription());
-		    ps1.setString(4, createinput.getMenulist().get(0).getValue());
+		    ps1.setString(2, createinput.getMenulist().get(i).getId());
+		    ps1.setString(3, createinput.getMenulist().get(i).getDescription());
+		    ps1.setString(4, createinput.getMenulist().get(i).getValue());
 		    ps1.setTimestamp(5, currentTimestamp);
 		    ps1.setString(6,user);
 		    ps1.executeUpdate();//executing query
+			}
 		    
-		    for(int i=0;i<size;i++)//for storing multiple permissions related to same menuList in database
+		    for(int i=0;i<menusize;i++)//for storing multiple permissions related to same menuList in database
 		    {
+		    	int size=createinput.getMenulist().get(i).getPermissions().size();
+		    	for(int j=0;j<size;j++)
+		    	{
 		    	ps1 = conn.prepareStatement(sql3);
 		    	ps1.setString(1, roleid);
-		    	ps1.setString(2, createinput.getMenulist().get(0).getId());
-		    	ps1.setString(3, createinput.getMenulist().get(0).getPermissions().get(i).getId());
-		    	ps1.setString(4, createinput.getMenulist().get(0).getPermissions().get(i).getDescription());
-		    	ps1.setString(5, createinput.getMenulist().get(0).getPermissions().get(i).getValue());
+		    	ps1.setString(2, createinput.getMenulist().get(i).getId());
+		    	ps1.setString(3, createinput.getMenulist().get(i).getPermissions().get(j).getId());
+		    	ps1.setString(4, createinput.getMenulist().get(i).getPermissions().get(j).getDescription());
+		    	ps1.setString(5, createinput.getMenulist().get(i).getPermissions().get(j).getValue());
 		    	ps1.setTimestamp(6, currentTimestamp);
 		    	ps1.setString(7,user);
 		    	ps1.executeUpdate();//executing query
 		    	ps1.close();
+		    	}
 		    }
 		    output.setSuccess(true);
 		    success=output.getSuccess();
