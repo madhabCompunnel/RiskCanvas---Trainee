@@ -15,6 +15,7 @@
 	<mvc:cors>
 		<mvc:mapping path="/**" />
 	</mvc:cors>
-<context:component-scan base-package="bahriskcanvas"/>	
+<context:component-scan base-package="bahriskcanvas,riskcanvas.controller,riskcanvas.service,riskcanvas.dao,riskcanvas.model"/>	
 <mvc:annotation-driven/>
+<context:annotation-config/>
 </beans>

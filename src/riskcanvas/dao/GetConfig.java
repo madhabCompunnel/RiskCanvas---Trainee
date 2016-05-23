@@ -10,8 +10,8 @@ public class GetConfig
 	public static DatabaseConnection getConnection(HttpServletRequest request)
 	{
 		WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
-		DatabaseConnection databaseconnection= (DatabaseConnection) applicationContext.getBean("DBUtility1");
-        return databaseconnection;
+		DatabaseConnection databaseConnection= (DatabaseConnection) applicationContext.getBean("DBUtility1");
+        return databaseConnection;
 		
 	}
 
