@@ -1,7 +1,9 @@
-package bahriskcanvas;
+package riskcanvas.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import bahriskcanvas.Group;
+import bahriskcanvas.Menulist;
 
 public class AddUser {
 
