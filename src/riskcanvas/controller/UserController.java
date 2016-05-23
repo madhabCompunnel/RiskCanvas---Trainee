@@ -7,6 +7,8 @@ package riskcanvas.controller;
 
 import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,7 +26,7 @@ import riskcanvas.service.UserService;
 
 @RestController 
 public class UserController {
-	UserService userservice=new UserService();
+	private UserService userservice;
 	DatabaseConnection conndata=new DatabaseConnection();
 /*****************************************************************************************************************************************************/	
 /*****************************************************       FOR CREATING NEW USER      **************************************************************/
@@ -37,21 +39,15 @@ public class UserController {
 		 * @return success(true/false)
 		 */
 		@RequestMapping(value="/user/create",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
-		public Success NewUser(@RequestBody AddUser adduser,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws customException
+		public Success NewUser(@RequestBody AddUser adduser,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws customException, SQLException
 		{	
+			
 			adduser.setAlf_ticket(ticket);//setting createdBy property in CreateRoleInput class
 			boolean result=false;
 			
 			/**********************Setting context for retrieving the configuration file**********************/
 			conndata=GetConfig.getConnection(req);//Bean for setting database configurations
-			try 
-			{
-				result=userservice.add(adduser,conndata);
-			} 
-			catch (SQLException e) 
-			{
-				throw new customException(e.getErrorCode(), e.getMessage());
-			}
+			result=userservice.add(adduser,conndata);
 	        return new Success(result);
 		}
 }
