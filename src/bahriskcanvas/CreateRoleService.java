@@ -236,7 +236,7 @@ public class CreateRoleService
 /*******************************************************       FOR LISTING ROLE      *****************************************************************/
 /*****************************************************************************************************************************************************/
 
-	public Roles list(String excludeInactive) throws SQLException
+	public Roles list(String excludeInactive,String ticket) throws SQLException
 	{
 		Roles roles=new Roles();//variable that will be returned in output
 		ArrayList<String> roleidlist=new ArrayList<String>();//arrayList for storing all roleid's contained in database
@@ -248,7 +248,6 @@ public class CreateRoleService
 		ArrayList<Menulist> menulistfinal=new ArrayList<Menulist>();//final menuList for storing menuList's plus related permissions
 		ArrayList<RolePermission> permissionlist=new ArrayList<RolePermission>();//arraylist for storing all permissions
 		HashMap<String,ArrayList<String>> roleMenuIdMap=new HashMap<String,ArrayList<String>>();//hashMap for mapping roleid's to menuid's
-		
 		/**
 		 * Three tables are managed for RoleService so following queries on three tables
 		 */
@@ -256,9 +255,13 @@ public class CreateRoleService
 		String sql1="SELECT isActive,roleName,roleId,assignedUsers,defaultScreen from tbl_createrole";
 		String sql2="SELECT id,description,value from tbl_menulist WHERE roleId=?";
 		String sql3="SELECT id,description,value from tbl_permissions WHERE roleId=? AND menuid=?";
+		getalf_ticket getalfticket=new getalf_ticket();//getting current user alf_ticket
+		@SuppressWarnings("unused")
+		String user=getalfticket.getticket(ticket, datasource, conn);
 		try{
 			int index,menulistFirstIndex=0,menulistfinalFirstIndex=0,permissionFirstIndex=0;
 			conn=datasource.getConnection();
+            
 			PreparedStatement ps=null;
 			if(excludeInactive.equals("false"))
 		    	{ps=conn.prepareStatement(sql1);}

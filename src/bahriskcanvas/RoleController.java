@@ -44,8 +44,8 @@ public class RoleController
 		roleinput.setAlf_ticket(ticket);//setting createdBy property in CreateRoleInput class
 		CreateRoleOutput success=new CreateRoleOutput();
 		int menusize=roleinput.getMenulist().size();
-		//VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
-	    //verify.isboolean(roleinput);
+		VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
+	    verify.isboolean(roleinput);
 		
 		/**********************Setting context for retrieving the configuration file**********************/
 		createroleservice = GetConfig.getConfigRole(req);//Bean for setting database configurations
@@ -109,9 +109,9 @@ public class RoleController
 	 * @throws JSONException 
 	 */
 	@RequestMapping(value="/role/list",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
-	public Roles Register(@RequestBody String excludeInactive,HttpServletRequest req) throws customException, Exception
+	public Roles Register(@RequestBody String excludeInactive,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws customException, Exception
 	{	
-		
+
 		Roles rolelist=new Roles();
 		JSONObject jsonobject=new JSONObject(excludeInactive);
 		excludeInactive=jsonobject.getString("excludeInactive");
@@ -121,7 +121,7 @@ public class RoleController
 			createroleservice = GetConfig.getConfigRole(req);//Bean for setting database configurations
 			try 
 			{
-				rolelist=createroleservice.list(excludeInactive);
+				rolelist=createroleservice.list(excludeInactive,ticket);
 			} 
 			catch (SQLException e) 
 			{
