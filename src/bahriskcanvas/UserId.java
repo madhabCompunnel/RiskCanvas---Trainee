@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import riskcanvas.exception.UserException;
 
 /*
  * Class returns the User_id
@@ -21,8 +22,10 @@ public class UserId
 	 * @throws UserException
 	 * Method returns user id
 	 */
-	public int getUserId(Connection con,String alfTicket)throws SQLException,NullPointerException,UserException
+	public int getUserId(Connection con,String alfTicket)
 	{
+		try
+		{
 		PreparedStatement getUserStatement=con.prepareStatement("select user_id from tbl_user_ticket where alf_ticket=?");
 		getUserStatement.setString(1, alfTicket);
 		ResultSet getUser=getUserStatement.executeQuery();
@@ -30,6 +33,12 @@ public class UserId
 		{
 			user_id=getUser.getInt(1);
 		}				
-		return user_id;
+		
 		}
+		catch(SQLException e)
+		{
+			throw new UserException(e.getMessage());
+		}
+		return user_id;
+	}
 }

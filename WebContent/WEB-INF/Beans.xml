@@ -16,6 +16,9 @@
     	<property name="dataSource" ref="dataSource1" /> 
   	</bean>
 	
+	<!-- Group Service bean -->
+	<bean id="groupService" class="riskcanvas.service.GroupServiceImpl"></bean>
+	
 	
      <!-- Bean for setting common database connections -->
 	<bean id="dataSource1" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
