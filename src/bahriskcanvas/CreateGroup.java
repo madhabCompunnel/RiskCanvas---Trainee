@@ -16,12 +16,14 @@ public class CreateGroup
 
 	public String getGroupName() 
 	{
-	return groupName;
+		return groupName;
 	}
+	
 	public void setGroupName(String groupName)
 	{
-	this.groupName = groupName;
+		this.groupName = groupName;
 	}
+	
 	public String getIsParent() 
 	{
 	return isParent;
