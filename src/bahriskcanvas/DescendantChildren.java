@@ -16,6 +16,7 @@ public class DescendantChildren
 			ResultSet rs=ps.executeQuery();
 			while(rs.next())
 			{
+				System.out.println(rs.getString(1));
 				children.add(rs.getString(1));
 			}
 			getChildren(children,children.size()-size,con);

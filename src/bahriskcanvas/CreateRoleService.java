@@ -27,14 +27,7 @@ import bahriskcanvas.getalf_ticket;
 public class CreateRoleService 
 {
 	private DataSource datasource;//Spring's own class for setting database related configuration in Beans.xml file
-	/** 
-	* @param Datasource
-	* The Datasource
-	*/
-	public void setDatasource(DataSource datasource)
-	{
-		this.datasource = datasource;
-	}
+
 	Connection conn =null;//Connection string
 	/**
 	 * @param createinput
@@ -46,11 +39,13 @@ public class CreateRoleService
 /*****************************************************************************************************************************************************/	
 /*****************************************************       FOR CREATING NEW ROLE      **************************************************************/
 /*****************************************************************************************************************************************************/
-	public boolean insert(CreateRoleInput createinput,int menusize) throws SQLException
+	public boolean insert(CreateRoleInput createinput,int menusize,DatabaseConnection conndata) throws SQLException
 	{
 		Boolean success;
+		datasource=conndata.getDatasource();
 		CheckRoleName checkrolename=new CheckRoleName();//method for checking if roleName already exists or if roleId(if already exists) is legitimate
 		checkrolename.CheckAlreadyExist(null,createinput.getRoleName(),datasource);
+		
 	    /**
 	     * Three tables are managed for various field of input
 	     */
@@ -136,13 +131,15 @@ public class CreateRoleService
 		}
 		
 	}
+
 /*****************************************************************************************************************************************************/	
 /*******************************************************       FOR EDITING ROLE      *****************************************************************/
 /*****************************************************************************************************************************************************/
-	public boolean update(CreateRoleInput roleinput,int size) throws SQLException
+	public boolean update(CreateRoleInput roleinput,int size,DatabaseConnection conndata) throws SQLException
 	{
 
 		Boolean success;//variable for sending true/false as output
+		datasource=conndata.getDatasource();
 		CheckRoleName checkrolename=new CheckRoleName();//method for checking if roleName already exists or if roleId is legitimate
 		checkrolename.CheckAlreadyExist(roleinput.getRoleId(),roleinput.getRoleName(),datasource);
 		/*************replacing roleName substring in roleId to match the new roleName***************/
@@ -236,8 +233,9 @@ public class CreateRoleService
 /*******************************************************       FOR LISTING ROLE      *****************************************************************/
 /*****************************************************************************************************************************************************/
 
-	public Roles list(String excludeInactive,String ticket) throws SQLException
+	public Roles list(String excludeInactive,DatabaseConnection conndata) throws SQLException
 	{
+		datasource=conndata.getDatasource();
 		Roles roles=new Roles();//variable that will be returned in output
 		ArrayList<String> roleidlist=new ArrayList<String>();//arrayList for storing all roleid's contained in database
 		ArrayList<String> menuidlist=new ArrayList<String>();//arrayList for storing all menuid's contained in database
@@ -248,6 +246,7 @@ public class CreateRoleService
 		ArrayList<Menulist> menulistfinal=new ArrayList<Menulist>();//final menuList for storing menuList's plus related permissions
 		ArrayList<RolePermission> permissionlist=new ArrayList<RolePermission>();//arraylist for storing all permissions
 		HashMap<String,ArrayList<String>> roleMenuIdMap=new HashMap<String,ArrayList<String>>();//hashMap for mapping roleid's to menuid's
+		
 		/**
 		 * Three tables are managed for RoleService so following queries on three tables
 		 */
@@ -255,13 +254,10 @@ public class CreateRoleService
 		String sql1="SELECT isActive,roleName,roleId,assignedUsers,defaultScreen from tbl_createrole";
 		String sql2="SELECT id,description,value from tbl_menulist WHERE roleId=?";
 		String sql3="SELECT id,description,value from tbl_permissions WHERE roleId=? AND menuid=?";
-		getalf_ticket getalfticket=new getalf_ticket();//getting current user alf_ticket
-		@SuppressWarnings("unused")
-		String user=getalfticket.getticket(ticket, datasource, conn);
+		
 		try{
 			int index,menulistFirstIndex=0,menulistfinalFirstIndex=0,permissionFirstIndex=0;
 			conn=datasource.getConnection();
-            
 			PreparedStatement ps=null;
 			if(excludeInactive.equals("false"))
 		    	{ps=conn.prepareStatement(sql1);}

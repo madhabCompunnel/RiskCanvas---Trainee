@@ -31,7 +31,7 @@ public class LoginController
 		/*
 		 * check if user name is empty
 		 */
-		if(credentials.getUsername().isEmpty() || credentials.getUsername()==null)
+		if(credentials.getUsername().isEmpty()||credentials.getUsername()==null)
 		{
 			throw new UserException("UserName field cannot be left empty");
 		}

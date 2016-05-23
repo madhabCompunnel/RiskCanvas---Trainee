@@ -28,6 +28,7 @@ import bahriskcanvas.customException;
 public class RoleController 
 {
 	CreateRoleService createroleservice=new CreateRoleService();
+	DatabaseConnection conndata=new DatabaseConnection();
 /*****************************************************************************************************************************************************/	
 /*****************************************************       FOR CREATING NEW ROLE      **************************************************************/
 /*****************************************************************************************************************************************************/
@@ -48,10 +49,10 @@ public class RoleController
 	    verify.isboolean(roleinput);
 		
 		/**********************Setting context for retrieving the configuration file**********************/
-		createroleservice = GetConfig.getConfigRole(req);//Bean for setting database configurations
+		conndata=GetConfig.getConnection(req);//Bean for setting database configurations
 		try 
 		{
-			boolean output=createroleservice.insert(roleinput,menusize);
+			boolean output=createroleservice.insert(roleinput,menusize,conndata);
 			success.setSuccess(output);
 		} 
 		catch (SQLException e) 
@@ -83,10 +84,10 @@ public class RoleController
 	    verify.isboolean(editinput);
 		
 		/**********************Setting context for retrieving the configuration file**********************/
-		createroleservice = GetConfig.getConfigRole(req);//Bean for setting database configurations
+		conndata=GetConfig.getConnection(req);//Bean for setting database configurations
 		try 
 		{
-			boolean output=createroleservice.update(editinput,size);
+			boolean output=createroleservice.update(editinput,size,conndata);
 			success.setSuccess(output);
 		} 
 		catch (SQLException e) 
@@ -109,19 +110,24 @@ public class RoleController
 	 * @throws JSONException 
 	 */
 	@RequestMapping(value="/role/list",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
-	public Roles Register(@RequestBody String excludeInactive,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws customException, Exception
+	public Roles Register(@RequestBody String excludeInactive,HttpServletRequest req) throws customException, Exception
 	{	
-
+		
+		DatabaseConnection conndata=new DatabaseConnection();
+		conndata=GetConfig.getConnection(req);
+		System.out.println("connData ="+conndata.toString());
 		Roles rolelist=new Roles();
 		JSONObject jsonobject=new JSONObject(excludeInactive);
 		excludeInactive=jsonobject.getString("excludeInactive");
 		if(excludeInactive.equals("true")||excludeInactive.equals("false"))
 		{
 		/**********************Setting context for retrieving the configuration file**********************/
-			createroleservice = GetConfig.getConfigRole(req);//Bean for setting database configurations
+			//createroleservice = GetConfig.getConfigRole(req);//Bean for setting database configurations
 			try 
 			{
-				rolelist=createroleservice.list(excludeInactive,ticket);
+				System.out.println("reached here");
+				rolelist=createroleservice.list(excludeInactive,conndata);
+				System.out.println("reached here 2");
 			} 
 			catch (SQLException e) 
 			{

@@ -1,7 +1,6 @@
 package bahriskcanvas;
 
 import java.util.ArrayList;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Group 

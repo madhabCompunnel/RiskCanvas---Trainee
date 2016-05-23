@@ -14,11 +14,11 @@ public class GetConfig
 		
 	}
 	
-	public static CreateRoleService getConfigRole(HttpServletRequest request)
+	public static DatabaseConnection getConnection(HttpServletRequest request)
 	{
 		WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
-		CreateRoleService createroleservice= (CreateRoleService) applicationContext.getBean("DBUtility");
-        return createroleservice;
+		DatabaseConnection databaseconnection= (DatabaseConnection) applicationContext.getBean("DBUtility1");
+        return databaseconnection;
 		
 	}
 
