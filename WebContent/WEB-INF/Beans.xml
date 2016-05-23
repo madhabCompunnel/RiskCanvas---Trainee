@@ -12,6 +12,11 @@
 	<bean id="DAO" class="bahriskcanvas.ConnectionClass">
     	<property name="dataSource" ref="dataSource1" /> 
   	</bean>
+  	
+  	<!-- New bean as per mvc model -->
+	<bean id="DBUtility1" class="riskcanvas.dao.DatabaseConnection">
+    	<property name="datasource" ref="dataSource1" /> 
+  	</bean>
 	
      <!-- Bean for setting common database connections -->
 	<bean id="dataSource1" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
