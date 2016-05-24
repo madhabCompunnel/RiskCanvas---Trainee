@@ -1,5 +1,4 @@
 package riskcanvas.dao.user;
-
 import riskcanvas.dao.DatabaseConnection;
 import riskcanvas.model.AddUser;
 

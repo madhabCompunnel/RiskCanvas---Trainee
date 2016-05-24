@@ -15,7 +15,7 @@ import riskcanvas.exception.UserException;
 @RestController
 public class UpdatedGroupController 
 {
-	@Autowired
+	@Autowired(required=false)
 	GroupService groupService;
 	/**
 	 * 
