@@ -1,3 +1,4 @@
+//class for verifying boolean values
 package bahriskcanvas;
 
 public class VerifyBoolean {
@@ -17,18 +18,21 @@ public class VerifyBoolean {
 		if((roleinput.getMenulist().get(i).getValue()=="true")||(roleinput.getMenulist().get(i).getValue()=="false"))
 			{}
 		else
-			throw new customException(400,"Invalid Data:Only boolean values allowed for feild "+"\"value\""+"in menuList");
+			throw new customException(400,"Invalid Data:Only boolean values allowed for feild value in menuList");
 		}
 		
-		int permissionsize=roleinput.getMenulist().get(0).getPermissions().size();
+		
 		for(i=0;i<menusize;i++)
-		for(j=0;j<permissionsize;j++)
 		{
-		if((roleinput.getMenulist().get(i).getPermissions().get(j).getValue()=="true")||(roleinput.getMenulist().get(i).getPermissions().get(j).getValue()=="false"))
-			{}
-		else
-			throw new customException(400,"Invalid Data:Only boolean values allowed for feild "+"\"value\""+"in permissions");
+			int permissionsize=roleinput.getMenulist().get(0).getPermissions().size();
+			for(j=0;j<permissionsize;j++)
+			{
+					if((roleinput.getMenulist().get(i).getPermissions().get(j).getValue()=="true")||(roleinput.getMenulist().get(i).getPermissions().get(j).getValue()=="false"))
+						{}
+					else
+						throw new customException(400,"Invalid Data:Only boolean values allowed for feild value in permissions");
+			}
 		}
 	}
-
+	
 }

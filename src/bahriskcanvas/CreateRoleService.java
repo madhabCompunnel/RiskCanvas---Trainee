@@ -233,9 +233,12 @@ public class CreateRoleService
 /*******************************************************       FOR LISTING ROLE      *****************************************************************/
 /*****************************************************************************************************************************************************/
 
-	public Roles list(String excludeInactive,DatabaseConnection conndata) throws SQLException
+	public Roles list(String excludeInactive,DatabaseConnection conndata,String ticket) throws SQLException
 	{
 		datasource=conndata.getDatasource();
+		getalf_ticket getalfticket=new getalf_ticket();//getting current user alf_ticket
+		@SuppressWarnings("unused")
+		String user=getalfticket.getticket(ticket, datasource, conn);
 		Roles roles=new Roles();//variable that will be returned in output
 		ArrayList<String> roleidlist=new ArrayList<String>();//arrayList for storing all roleid's contained in database
 		ArrayList<String> menuidlist=new ArrayList<String>();//arrayList for storing all menuid's contained in database

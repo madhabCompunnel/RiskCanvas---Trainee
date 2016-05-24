@@ -4,10 +4,14 @@ package bahriskcanvas;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Menulist {
 	private String id;
 	private String description;
 	private String value;
+	
 	private List<RolePermission> permissions = new ArrayList<RolePermission>();
 	
 	public Menulist()
@@ -86,4 +90,5 @@ public class Menulist {
 	public void setPermissions(List<RolePermission> permissions) {
 	this.permissions = permissions;
 	}
+	
 }

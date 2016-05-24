@@ -15,7 +15,6 @@ import javax.sql.DataSource;
  */
 public class CheckRoleName {
 
-;
 	public void CheckAlreadyExist(String roleId,String roleName,DataSource datasource) throws SQLException
 	{
 		

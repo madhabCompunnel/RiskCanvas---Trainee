@@ -1,9 +1,13 @@
 package bahriskcanvas;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RolePermission {
 	private String id;
 	private String description;
 	private String value;
+	private String overriddenValue;
 
 	/**
 	 * Empty constructor
@@ -64,5 +68,13 @@ public class RolePermission {
 	*/
 	public void setValue(String value) {
 	this.value = value;
+	}
+
+	public String getOverriddenValue() {
+		return overriddenValue;
+	}
+
+	public void setOverriddenValue(String overriddenValue) {
+		this.overriddenValue = overriddenValue;
 	}
 }

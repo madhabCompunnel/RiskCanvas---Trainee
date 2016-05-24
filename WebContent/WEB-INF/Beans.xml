@@ -3,29 +3,38 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- Bean for CreateRoleService class for setting dataSource database configurations -->
-	<!-- <bean id="DBUtility" class="bahriskcanvas.CreateRoleService">
-		<property name="datasource" ref="dataSource1" />
-	</bean> -->
 	<bean id="DBUtility1" class="bahriskcanvas.DatabaseConnection">
 		<property name="datasource" ref="dataSource1" />
 	</bean>
+	
+	<!-- Bean for setting database related configuration -->
 	<bean id="DBUtility" class="riskcanvas.dao.DatabaseConnection">
 		<property name="datasource" ref="dataSource1" />
 	</bean>
+	
 	
 	<!-- Bean for login service -->
 	<bean id="DAO" class="bahriskcanvas.ConnectionClass">
     	<property name="dataSource" ref="dataSource1" /> 
   	</bean>
-	
-	<!-- Group Service bean -->
+  	
+  	<!-- Group Service bean -->
 	<bean id="groupService" class="riskcanvas.service.GroupServiceImpl">
 	<property name="groupDao" ref="groupDao"/>
 	</bean>
+	
 	<!-- Group DAO bean -->
 	<bean id="groupDao" class="riskcanvas.dao.group.GroupDaoImpl"></bean>
 	
+    <!-- Bean for user service class -->
+	<bean class="riskcanvas.service.UserServiceImpl">
+   		<property name="userdao" ref="userdao">
+  		</property>
+    </bean>
+    
+    <!-- Bean for UserDao class -->
+	<bean id="userdao" class="riskcanvas.dao.user.UserDaoImpl"/>
+
      <!-- Bean for setting common database connections -->
 	<bean id="dataSource1" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 
