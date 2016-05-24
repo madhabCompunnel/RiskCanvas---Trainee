@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import riskcanvas.exception.UserException;
 
 /*
  * Class returns the User_id
@@ -33,11 +32,14 @@ public class UserId
 		{
 			user_id=getUser.getInt(1);
 		}				
-		
 		}
 		catch(SQLException e)
 		{
-			throw new UserException(e.getMessage());
+			throw new customException(e.getErrorCode(),e.getMessage());
+		}
+		catch(Exception e)
+		{
+			throw new customException(400,e.getMessage());
 		}
 		return user_id;
 	}

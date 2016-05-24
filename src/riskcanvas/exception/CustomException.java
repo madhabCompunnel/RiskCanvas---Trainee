@@ -1,7 +1,7 @@
 // class for catching custom exception and setting error code and error message accordingly
 package riskcanvas.exception;
 
-public class customException extends RuntimeException {
+public class CustomException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 	private int errcode;
 	private String errmsg;	
@@ -35,7 +35,7 @@ public class customException extends RuntimeException {
 	 * @param errcode
 	 * @param errmsg
 	 */
-	public customException(int errcode,String errmsg)
+	public CustomException(int errcode,String errmsg)
 	{
 		this.errcode=errcode;
 		this.errmsg=errmsg;

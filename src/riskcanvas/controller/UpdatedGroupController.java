@@ -6,17 +6,15 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import riskcanvas.model.EditGroup;
 import bahriskcanvas.Success;
 import riskcanvas.service.GroupService;
-import riskcanvas.exception.UserException;
 
 @RestController
 public class UpdatedGroupController 
 {
-	@Autowired(required=false)
-	GroupService groupService;
+	@Autowired
+	private GroupService groupService;
 	/**
 	 * 
 	 * @param editGroup

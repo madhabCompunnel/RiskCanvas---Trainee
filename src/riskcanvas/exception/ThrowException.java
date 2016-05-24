@@ -1,7 +1,7 @@
 //class for returning exception data to the user
 package riskcanvas.exception;
 
-public class throwException {
+public class ThrowException {
 	private Boolean success;
 	private int errcode;
 	private String errmsg;

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import bahriskcanvas.Success;
 import riskcanvas.dao.DatabaseConnection;
 import riskcanvas.dao.GetConfig;
-import riskcanvas.exception.customException;
+import riskcanvas.exception.CustomException;
 import riskcanvas.model.AddUser;
 import riskcanvas.service.UserService;
 
@@ -39,7 +39,7 @@ public class UserController {
 		 * @return success(true/false)
 		 */
 		@RequestMapping(value="/user/create",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
-		public Success NewUser(@RequestBody AddUser adduser,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws customException, SQLException
+		public Success NewUser(@RequestBody AddUser adduser,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws CustomException, SQLException
 		{	
 			
 			adduser.setAlf_ticket(ticket);//setting createdBy property in CreateRoleInput class

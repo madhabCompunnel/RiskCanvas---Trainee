@@ -10,6 +10,9 @@
 	<bean id="DBUtility1" class="bahriskcanvas.DatabaseConnection">
 		<property name="datasource" ref="dataSource1" />
 	</bean>
+	<bean id="DBUtility" class="riskcanvas.dao.DatabaseConnection">
+		<property name="datasource" ref="dataSource1" />
+	</bean>
 	
 	<!-- Bean for login service -->
 	<bean id="DAO" class="bahriskcanvas.ConnectionClass">
@@ -17,8 +20,11 @@
   	</bean>
 	
 	<!-- Group Service bean -->
-	<bean id="groupService" class="riskcanvas.service.GroupServiceImpl"></bean>
-	
+	<bean id="groupService" class="riskcanvas.service.GroupServiceImpl">
+	<property name="groupDao" ref="groupDao"/>
+	</bean>
+	<!-- Group DAO bean -->
+	<bean id="groupDao" class="riskcanvas.dao.group.GroupDaoImpl"></bean>
 	
      <!-- Bean for setting common database connections -->
 	<bean id="dataSource1" class="org.springframework.jdbc.datasource.DriverManagerDataSource">

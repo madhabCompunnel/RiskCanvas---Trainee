@@ -3,58 +3,55 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
-import riskcanvas.exception.UserException;
-import bahriskcanvas.UserId;
+import javax.sql.DataSource;
+import riskcanvas.exception.CustomException;
 import riskcanvas.dao.GetConfig;
 import riskcanvas.dao.DatabaseConnection;
 import riskcanvas.model.EditGroup;
+import utils.CheckValues;
 
 public class GroupDaoImpl implements GroupDao 
 {
-	Connection con;
+	private Connection con;
 	
 	@Override
 	public boolean editGroup(EditGroup editGroup,HttpServletRequest request,String alfTicket)
 	{
-		if(new UserId().getUserId(con,alfTicket)!=0)
+	try
 		{
-		try
-		{
+			/*
+		 	* result is set to true if editing group is successful
+		 	*/
 			DatabaseConnection databaseConnection=GetConfig.getConnection(request);
+			DataSource dataSource=databaseConnection.getDatasource();
 			con=databaseConnection.getDatasource().getConnection();
-				
-						/*
-						 * result is set to true if editing group is successful
-						 */
-						boolean result=false;
-						PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set group_name=? where group_id=?"); 
-						updateStatement.setString(1,editGroup.getGroupName());
-						updateStatement.setString(2, editGroup.getGroupId());
-						int updateResult=updateStatement.executeUpdate();
-						if(updateResult>0)
-							{
-								result=true;
-							}
-						else
-							{
-								result=false;
-							}
-						con.close();
-						return result;
-					}
-			catch(SQLException e)
-			{
-			throw new UserException(e.getMessage());
-			}
-			catch(Exception e)
-			{
-				throw new UserException(e.getMessage());
-			}
+			new CheckValues().checkNotExist(alfTicket, "tbl_user_ticket","alf_ticket",dataSource);
+			boolean result=false;
+			PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set group_name=? where group_id=?"); 
+			updateStatement.setString(1,editGroup.getGroupName());
+			updateStatement.setString(2, editGroup.getGroupId());
+			int updateResult=updateStatement.executeUpdate();
+			if(updateResult>0)
+				{
+					result=true;
+				}
+			else
+				{
+					throw new CustomException(400,"Check if group Id is correct!");
+				}
+			con.close();
+			return result;
 		}
-		else
+		catch(SQLException e)
 		{
-			throw new UserException("Session Expired! login to continue");
+			e.printStackTrace();
+		throw new CustomException(e.getErrorCode(),e.getMessage());
 		}
-			
+		catch(NullPointerException e)
+		{
+			e.printStackTrace();
+			throw new CustomException(400,e.getMessage());
+		}
 	}
+			
 }
