@@ -3,12 +3,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
 import riskcanvas.exception.CustomException;
 import riskcanvas.dao.GetConfig;
 import riskcanvas.dao.DatabaseConnection;
 import riskcanvas.model.EditGroup;
-import utils.CheckValues;
+import utils.CheckTicket;
 
 public class GroupDaoImpl implements GroupDao 
 {
@@ -23,13 +22,13 @@ public class GroupDaoImpl implements GroupDao
 		 	* result is set to true if editing group is successful
 		 	*/
 			DatabaseConnection databaseConnection=GetConfig.getConnection(request);
-			DataSource dataSource=databaseConnection.getDatasource();
 			con=databaseConnection.getDatasource().getConnection();
-			new CheckValues().checkNotExist(alfTicket, "tbl_user_ticket","alf_ticket",dataSource);
+			int user_id=new CheckTicket().getticket(alfTicket, con);
 			boolean result=false;
-			PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set group_name=? where group_id=?"); 
+			PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set group_name=?, updated_by=? where group_id=?"); 
 			updateStatement.setString(1,editGroup.getGroupName());
-			updateStatement.setString(2, editGroup.getGroupId());
+			updateStatement.setInt(2,user_id);
+			updateStatement.setString(3, editGroup.getGroupId());
 			int updateResult=updateStatement.executeUpdate();
 			if(updateResult>0)
 				{
@@ -49,7 +48,45 @@ public class GroupDaoImpl implements GroupDao
 		}
 		catch(NullPointerException e)
 		{
-			e.printStackTrace();
+			throw new CustomException(400,e.getMessage());
+		}
+	}
+	
+	
+	public boolean moveGroup(EditGroup editGroup,HttpServletRequest request,String alfTicket)
+	{
+		System.out.println("in move");
+	try
+		{
+			/*
+		 	* result is set to true if editing group is successful
+		 	*/
+			boolean result=false;
+			DatabaseConnection databaseConnection=GetConfig.getConnection(request);
+			con=databaseConnection.getDatasource().getConnection();
+			int user_id=new CheckTicket().getticket(alfTicket, con);
+			PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set parent_id=?,updated_by=? where group_id=?"); 
+			updateStatement.setString(1,editGroup.getDestinationGroupId());
+			updateStatement.setInt(2,user_id);
+			updateStatement.setString(3, editGroup.getGroupId());
+			int updateResult=updateStatement.executeUpdate();
+			if(updateResult>0)
+				{
+					result=true;
+				}
+			else
+				{
+					throw new CustomException(400,"Check if fields are correct!");
+				}
+			con.close();
+			return result;
+		}
+		catch(SQLException e)
+		{
+		throw new CustomException(e.getErrorCode(),e.getMessage());
+		}
+		catch(NullPointerException e)
+		{
 			throw new CustomException(400,e.getMessage());
 		}
 	}

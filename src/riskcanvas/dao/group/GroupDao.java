@@ -5,5 +5,5 @@ import riskcanvas.model.EditGroup;
 public interface GroupDao
 {
 	boolean editGroup(EditGroup editGroup,HttpServletRequest request,String alfticket);
-
+	boolean moveGroup(EditGroup editGroup,HttpServletRequest request,String alfticket);
 }
