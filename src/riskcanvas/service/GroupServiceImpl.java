@@ -14,16 +14,29 @@ public class GroupServiceImpl implements GroupService
 	@Override
 	public boolean editGroup(String alfTicket,EditGroup editGroup,HttpServletRequest request)
 	{
-		if(alfTicket==null)
+		boolean result=false;
+		try
 		{
-			throw new CustomException(400,"Header does not contains ticket");
+			if(!editGroup.getGroupId().isEmpty())
+				{
+				if(editGroup.getDestinationGroupId() == null)
+					{
+						result=groupDao.editGroup(editGroup,request,alfTicket);
+					}
+				else
+					{
+						result=groupDao.moveGroup(editGroup,request,alfTicket);
+					}
+					return result;
+				}
+				else
+					{
+						throw new CustomException(400,"check for group_id");
+					}
 		}
-		if(editGroup==null)
+		catch(NullPointerException e)
 		{
-			throw new CustomException(400,"check for group_Id and groupName,fields cannot be left empty");
+			throw new CustomException(400,"Invalid Input");
 		}
-		boolean result=groupDao.editGroup(editGroup,request,alfTicket);
-		return result;
 	}
-
 }
