@@ -6,6 +6,8 @@ import riskcanvas.model.AddUser;
 
 public interface UserDao {
 
-	public boolean AddUser(AddUser adduser,DatabaseConnection connection) ;
+	public Boolean AddUser(AddUser adduser,DatabaseConnection connection) ;//add user
+
+	public Boolean EditUser(AddUser adduser, DatabaseConnection conndata,String pathUsername);//edit user
 	
 }
