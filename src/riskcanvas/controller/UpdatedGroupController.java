@@ -6,12 +6,16 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import riskcanvas.exception.CustomException;
 import riskcanvas.model.EditGroup;
 import bahriskcanvas.Success;
 import riskcanvas.service.GroupService;
 
+/**
+ * 
+ * @author 13083
+ *	Class deals with the Group Operations
+ */
 @RestController
 public class UpdatedGroupController 
 {
@@ -24,9 +28,9 @@ public class UpdatedGroupController
 	 * @return
 	 * @throws UserException
 	 * @throws riskcanvas.exception.UserException 
-	 * 
+	 * Method returns Success Object if the request is processed successfully for Edit Group
 	 */
-	@RequestMapping(value="group/edit",method=RequestMethod.POST,consumes="application/json",produces="application/json")
+	@RequestMapping(value="group/edit",method=RequestMethod.PUT,consumes="application/json",produces="application/json")
 	public Success editGroup(@RequestHeader(value="alfTicket",required=false) String alfTicket,@RequestBody EditGroup editGroup,HttpServletRequest request)
 	{	
 		if(alfTicket==null)

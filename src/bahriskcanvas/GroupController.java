@@ -27,8 +27,8 @@ public class GroupController
 	 * @throws UserException
 	 * Method create is responsible for creating a group and returns success object if no exception occurs
 	 */
-	@RequestMapping(value="group/create",method=RequestMethod.POST)
-	public Success createGroup(@RequestBody CreateGroup createGroup,@RequestHeader(value="alfTicket",required=false) String alfTicket,HttpServletRequest request) throws UserException
+	@RequestMapping(value="group/create",method=RequestMethod.POST,consumes="application/json",produces="application/json")
+	public Success createGroup(@RequestBody CreateGroup createGroup,@RequestHeader(value="alfTicket",required=false) String alfTicket,HttpServletRequest request)
 	{
 		//result will hold true if create group is successful
 		boolean result=false;
@@ -79,7 +79,7 @@ public class GroupController
 	 * @return
 	 * @throws UserException
 	 */
-	@RequestMapping(value="group/delete")
+	@RequestMapping(value="group/delete",method=RequestMethod.DELETE)
 	public Success deleteGroup(@RequestHeader(value="alfTicket",required=false) String alfTicket,@RequestParam("groupId") String group_id,HttpServletRequest request) throws Exception
 	{
 		if(alfTicket==null)
@@ -112,12 +112,6 @@ public class GroupController
 		return new Success(result);
 		}
 	}
-	public Success moveGroup(@RequestBody MoveGroup moveGroup,HttpServletRequest request)
-	{
-		ConnectionClass connectionClass =GetConfig.getConfig(request);
-        boolean result=connectionClass.getResult(moveGroup);
-		return new Success(result);
-	}
 	
 	/**
 	 * @param alfTicket
@@ -128,7 +122,7 @@ public class GroupController
 	 * @throws NullPointerException
 	 * Method returns all Groups
 	 */
-	@RequestMapping(value="group/all")
+	@RequestMapping(value="group/all",produces="application/json",method=RequestMethod.GET)
 	public Groups listAll(@RequestHeader(value="alfTicket",required=false) String alfTicket, HttpServletRequest request) throws UserException,SQLException,NullPointerException
 	{
 		Groups groups=null;
