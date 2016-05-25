@@ -6,10 +6,10 @@
  */
 package riskcanvas.controller;
 
-import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +20,6 @@ import utils.VerifyBoolean;
 import bahriskcanvas.Success;
 import riskcanvas.dao.DatabaseConnection;
 import riskcanvas.dao.GetConfig;
-import riskcanvas.exception.CustomException;
 import riskcanvas.model.AddUser;
 import riskcanvas.service.UserService;
 
@@ -37,16 +36,15 @@ public class UserController {
 /*****************************************************       FOR CREATING NEW USER      **************************************************************/
 /*****************************************************************************************************************************************************/
 		/**
-		 * @param roleinput
-		 * Type CreateRoelInput
+		 * @param adduser
 		 * @param req
-		 * Type HttpSErvletRequest
+		 * @param ticket
 		 * @return success(true/false)
 		 */
-	//Mapping url path, headers in request and the incoming JSON request to AddUser class
+	//Method for creating new user and mapping the incoming JSON request to AddUser class
 		@RequestMapping(value="/create",method=RequestMethod.POST,consumes="application/json")
-		public Success NewUser(@RequestBody AddUser adduser,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws CustomException,SQLException
-		{				
+		public Success NewUser(@RequestBody AddUser adduser,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) 
+		{			
 			adduser.setAlf_ticket(ticket);
 			boolean result=false;
 			VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
@@ -55,6 +53,30 @@ public class UserController {
 			/**********************Setting context for retrieving the configuration file**********************/
 			conndata=GetConfig.getConnection(req);//Bean for setting database configurations
 			result=userservice.add(adduser,conndata);
+	        return new Success(result);
+		}		
+		
+/*****************************************************************************************************************************************************/	
+/*******************************************************       FOR EDITING USER      *****************************************************************/
+/*****************************************************************************************************************************************************/
+		/**
+		 * @param adduser
+		 * @param req
+		 * @param ticket
+		 * @return success(true/false)
+		 */
+		//Method for editing user and mapping the incoming JSON request to AddUser class
+		@RequestMapping(value="/edit/{userName}",method=RequestMethod.POST,consumes="application/json")
+		public Success EditUser(@RequestBody AddUser adduser,@PathVariable String userName,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) 
+		{		
+			adduser.setAlf_ticket(ticket);
+			boolean result=false;
+			VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
+		    verify.isboolean(adduser);
+		
+			/**********************Setting context for retrieving the configuration file**********************/
+			conndata=GetConfig.getConnection(req);//Bean for setting database configurations
+			result=userservice.edit(adduser,conndata,userName);
 	        return new Success(result);
 		}		
 }
