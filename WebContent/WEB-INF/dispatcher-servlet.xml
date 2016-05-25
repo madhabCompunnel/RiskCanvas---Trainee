@@ -15,6 +15,16 @@
 	<mvc:cors>
 		<mvc:mapping path="/**" />
 	</mvc:cors>
+	<mvc:interceptors>
+	<bean class="utils.CORSInterceptor">
+			<property name="allowedOrigins" value="*" />
+			<property name="allowedMethods" value="GET,POST,HEAD,OPTIONS,PUT,DELETE" />
+			<property name="allowedHeaders" value="Content-Type,X-Requested-With,accept,ticket,Origin,Access-Control-Request-Method,Access-Control-Request-Headers" />
+			<property name="exposedHeaders" value="Access-Control-Allow-Origin,Access-Control-Allow-Credentials" />
+			<property name="allowCredentials" value="true" />
+			<property name="maxAge" value="3600" />
+		</bean>
+		</mvc:interceptors>
 <context:component-scan base-package="bahriskcanvas,riskcanvas.controller,riskcanvas.service,riskcanvas.dao.group,riskcanvas.model,riskcanvas.exception,riskcanvas.exceptionhandler"/>	
 <mvc:annotation-driven/>
 </beans>

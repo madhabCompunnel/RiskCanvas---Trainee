@@ -9,6 +9,11 @@ import riskcanvas.dao.DatabaseConnection;
 import riskcanvas.model.EditGroup;
 import utils.CheckTicket;
 
+/**
+ * 
+ * @author 13083
+ *
+ */
 public class GroupDaoImpl implements GroupDao 
 {
 	private Connection con;
@@ -17,45 +22,44 @@ public class GroupDaoImpl implements GroupDao
 	public boolean editGroup(EditGroup editGroup,HttpServletRequest request,String alfTicket)
 	{
 	try
+	{
+		/*
+	 	* result is set to true if editing group is successful
+	 	*/
+		DatabaseConnection databaseConnection=GetConfig.getConnection(request);
+		con=databaseConnection.getDatasource().getConnection();
+		int user_id=new CheckTicket().getticket(alfTicket, con);
+		boolean result=false;
+		PreparedStatement updateStatement=con.prepareStatement("UPDATE tbl_groups SET group_name=?, updated_by=? WHERE group_id=?"); 
+		updateStatement.setString(1,editGroup.getGroupName());
+		updateStatement.setInt(2,user_id);
+		updateStatement.setString(3, editGroup.getGroupId());
+		int updateResult=updateStatement.executeUpdate();
+		if(updateResult>0)
 		{
-			/*
-		 	* result is set to true if editing group is successful
-		 	*/
-			DatabaseConnection databaseConnection=GetConfig.getConnection(request);
-			con=databaseConnection.getDatasource().getConnection();
-			int user_id=new CheckTicket().getticket(alfTicket, con);
-			boolean result=false;
-			PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set group_name=?, updated_by=? where group_id=?"); 
-			updateStatement.setString(1,editGroup.getGroupName());
-			updateStatement.setInt(2,user_id);
-			updateStatement.setString(3, editGroup.getGroupId());
-			int updateResult=updateStatement.executeUpdate();
-			if(updateResult>0)
-				{
-					result=true;
-				}
-			else
-				{
-					throw new CustomException(400,"Check if group Id is correct!");
-				}
-			con.close();
-			return result;
+			result=true;
 		}
-		catch(SQLException e)
+		else
 		{
-			e.printStackTrace();
-		throw new CustomException(e.getErrorCode(),e.getMessage());
+			throw new CustomException(400,"Check if group Id is correct!");
 		}
-		catch(NullPointerException e)
-		{
-			throw new CustomException(400,e.getMessage());
-		}
+		con.close();
+		return result;
 	}
+	catch(SQLException e)
+	{
+		e.printStackTrace();
+		throw new CustomException(e.getErrorCode(),e.getMessage());
+	}
+	catch(NullPointerException e)
+	{
+		throw new CustomException(400,e.getMessage());
+	}
+}
 	
 	
 	public boolean moveGroup(EditGroup editGroup,HttpServletRequest request,String alfTicket)
 	{
-		System.out.println("in move");
 	try
 		{
 			/*
@@ -65,7 +69,7 @@ public class GroupDaoImpl implements GroupDao
 			DatabaseConnection databaseConnection=GetConfig.getConnection(request);
 			con=databaseConnection.getDatasource().getConnection();
 			int user_id=new CheckTicket().getticket(alfTicket, con);
-			PreparedStatement updateStatement=con.prepareStatement("update tbl_groups set parent_id=?,updated_by=? where group_id=?"); 
+			PreparedStatement updateStatement=con.prepareStatement("UPDATE tbl_groups SET parent_id=?,updated_by=? WHERE group_id=?"); 
 			updateStatement.setString(1,editGroup.getDestinationGroupId());
 			updateStatement.setInt(2,user_id);
 			updateStatement.setString(3, editGroup.getGroupId());

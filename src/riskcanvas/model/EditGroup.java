@@ -1,6 +1,11 @@
 package riskcanvas.model;
-
-public class EditGroup {
+/**
+ * 
+ * @author 13083
+ *	EditGroup Model
+ */
+public class EditGroup 
+{
 
     private String groupId;
     private String groupName;
@@ -11,7 +16,8 @@ public class EditGroup {
      * @return
      *     The groupId
      */
-    public String getGroupId() {
+    public String getGroupId() 
+    {
         return groupId;
     }
 
@@ -20,7 +26,8 @@ public class EditGroup {
      * @param groupId
      *     The groupId
      */
-    public void setGroupId(String groupId) {
+    public void setGroupId(String groupId) 
+    {
         this.groupId = groupId;
     }
 
@@ -29,7 +36,8 @@ public class EditGroup {
      * @return
      *     The groupName
      */
-    public String getGroupName() {
+    public String getGroupName() 
+    {
         return groupName;
     }
 
@@ -38,7 +46,8 @@ public class EditGroup {
      * @param groupName
      *     The groupName
      */
-    public void setGroupName(String groupName) {
+    public void setGroupName(String groupName) 
+    {
         this.groupName = groupName;
     }
     /**
@@ -46,7 +55,8 @@ public class EditGroup {
      * @return
      * 	The parentId
      */
-	public String getParentId() {
+	public String getParentId() 
+	{
 		return parentId;
 	}
 	
@@ -55,7 +65,8 @@ public class EditGroup {
 	 * @param parentId
 	 * 	The parentId
 	 */
-	public void setParentId(String parentId) {
+	public void setParentId(String parentId) 
+	{
 		this.parentId = parentId;
 	}
 	
@@ -64,7 +75,8 @@ public class EditGroup {
 	 * @return
 	 * The destinationGroupId
 	 */
-	public String getDestinationGroupId() {
+	public String getDestinationGroupId() 
+	{
 		return destinationGroupId;
 	}
 	
@@ -73,8 +85,8 @@ public class EditGroup {
 	 * @param destinatonGroupId
 	 * 	The destinationGroupId
 	 */
-	public void setDestinationGroupId(String destinationGroupId) {
+	public void setDestinationGroupId(String destinationGroupId) 
+	{
 		this.destinationGroupId = destinationGroupId;
 	}
-
 }

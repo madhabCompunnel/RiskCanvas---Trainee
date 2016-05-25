@@ -191,7 +191,7 @@ public class ConnectionClass
 							PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
 							insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 							insertStatement.setString(2,creategroup.getGroupName());
-							insertStatement.setString(3,"NULL");
+							insertStatement.setString(3,null);
 							insertStatement.setInt(4,new UserId().getUserId(con,alfTicket));
 							int insertResult=insertStatement.executeUpdate();
 							if(insertResult>0)
@@ -214,7 +214,7 @@ public class ConnectionClass
 									PreparedStatement insertStatement=con.prepareStatement("insert into tbl_groups(group_id,group_name,parent_id,created_by,created_on)values(?,?,?,?,now())");
 									insertStatement.setString(1, "Group_"+creategroup.getGroupName());
 									insertStatement.setString(2,creategroup.getGroupName());
-									insertStatement.setString(3,"NULL");
+									insertStatement.setString(3,null);
 									insertStatement.setInt(4,new UserId().getUserId(con,alfTicket));
 									int insertResult=insertStatement.executeUpdate();
 									insertStatement.close();
@@ -335,10 +335,14 @@ public class ConnectionClass
 			PreparedStatement ps=con.prepareStatement("select group_id from tbl_groups where parent_id=?");
 			ps.setString(1,group_id);
 			ResultSet rs=ps.executeQuery();
-				while(rs.next())
-					{
-						children.add(rs.getString(1));
-					}
+			while(rs.next())
+			{
+				children.add(rs.getString(1));
+			}
+			if(children.isEmpty())
+			{
+				throw new UserException("No such Group Exist!");	
+			}
 			new DescendantChildren().getChildren(children,0,con);
 			children.add(group_id);
 			PreparedStatement deleteGroupStatement=con.prepareStatement("delete from tbl_groups where group_id=?");
@@ -386,11 +390,11 @@ public class ConnectionClass
 			groupList=new ArrayList<Group>();
 			
 			Groups groups=new Groups();
-			PreparedStatement getParentStatement=con.prepareStatement("select group_id,group_name,parent_id from tbl_groups where parent_id=?");
-			getParentStatement.setString(1,"NULL");
+			PreparedStatement getParentStatement=con.prepareStatement("SELECT group_id,group_name,parent_id FROM tbl_groups WHERE parent_id IS NULL");
 			ResultSet parents=getParentStatement.executeQuery();
 			while(parents.next())
 			{
+				
 				subgroup=new ArrayList<Group>();
 				Group group=new Group();
 				group.setGroupId(parents.getString(1));
