@@ -26,6 +26,15 @@
 	<!-- Group DAO bean -->
 	<bean id="groupDao" class="riskcanvas.dao.group.GroupDaoImpl"></bean>
 	
+		<!-- Authentication Service bean -->
+	<bean id="authenticationService" class="riskcanvas.service.AuthenticationServiceImpl">
+	<property name="authenticationDao" ref="authenticationDao"/>
+	</bean>
+	
+	<!-- Authentication DAO bean -->
+	<bean id="authenticationDao" class="riskcanvas.dao.authentication.AuthenticationDaoImpl"></bean>
+	
+	
     <!-- Bean for user service class -->
 	<bean class="riskcanvas.service.UserServiceImpl">
    		<property name="userdao" ref="userdao">
