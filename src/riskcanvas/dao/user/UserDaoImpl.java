@@ -22,8 +22,10 @@ public class UserDaoImpl implements UserDao{
 	
 	int userid;
 	Boolean success=false;
+	String roleId="ROLE_admin_ju0kpTdLSA";
 	CheckValues value=new CheckValues();
 	RestrictChange restrictChange=new RestrictChange();
+	CheckTicket checkTicket=new CheckTicket();
 
 /*****************************************************************************************************************************************************/	
 /*****************************************************       FOR CREATING NEW USER      **************************************************************/
@@ -37,17 +39,20 @@ public class UserDaoImpl implements UserDao{
 	public Boolean AddUser(AddUser adduser, DatabaseConnection connection)  {
 		
 		datasource=connection.getDatasource();
+		PreparedStatement ps=null;
+		ResultSet rs=null;
 		int menusize=adduser.getMenulist().size();//to get size of menuList for any user for iteration in loop below
 		
 	    /**
 	     * Five tables are managed for various field of input
 	     */
-		String insertUser = "INSERT INTO tbl_user(username,f_name,l_name,phonenumber,email,roleId,isActive,defaultScreen,createdon,createdby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String insertUser = "INSERT INTO tbl_user(username,f_name,l_name,phonenumber,email,isActive,defaultScreen,createdon,createdby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		String userMenulist = "INSERT INTO tbl_usermenulist(user_id,id,description,value,createdon,createdby) VALUES (?, ?, ? , ?, ?, ?)";
 		String userPermission = "INSERT INTO tbl_userpermission(user_id,menuid,id,description,value,createdon,createdby) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		String userGroup = "INSERT INTO tbl_user_groups(group_id,user_id) VALUES(?, ?)";
 		String userRole = "INSERT INTO user_role(roleId,user_id) VALUES(?, ?)";
 		String getCurrentUserid="SELECT user_id from tbl_user WHERE email=?";
+		String loginUserRole="SELECT roleId from user_role WHERE user_id=?";
 		
 		/**
 		 * creating a timeStamp
@@ -57,56 +62,67 @@ public class UserDaoImpl implements UserDao{
 		java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
 	
 		try {
+			conn = datasource.getConnection();//creating connection to database
+			conn.setAutoCommit(false);
+			
+			/****************************Checking if logged in user is admin or not***************************************************/
 			value.checkNull(adduser.getAlf_ticket(),"Alf_ticket");
+			int user=checkTicket.getticket(adduser.getAlf_ticket(), conn);
+			ps=conn.prepareStatement(loginUserRole);
+			ps.setInt(1, user);
+			rs=ps.executeQuery();
+			while(rs.next())
+			{
+				if(!rs.getString(1).equals(roleId))
+					throw new CustomException(403,"Forbidden:Only Admin can create new users");
+			}
+			rs.close();
+			ps.close();
+			
 	        value.checkExist(adduser.getEmail(),"tbl_user","email",datasource);
 	        value.checkExist(adduser.getUserName(),"tbl_user","username",datasource);
 	        value.checkNotExist(adduser.getRoleId(),"tbl_createrole","roleId",datasource);
 	        value.checkNotExist(adduser.getGroup().get(0).getGroupId(),"tbl_groups","group_id",datasource);
 	        value.checkNotExist(adduser.getGroup().get(0).getGroup_name(),"tbl_groups","group_name",datasource);
-	        value.checkMapping(adduser.getGroup().get(0).getGroupId(), adduser.getGroup().get(0).getGroup_name(), "tbl_groups","group_id","group_name", datasource);
-			CheckTicket checkTicket=new CheckTicket();
-			
-			conn = datasource.getConnection();//creating connection to database
-			conn.setAutoCommit(false);
-			int user=checkTicket.getticket(adduser.getAlf_ticket(), conn);
+	        value.checkMapping(adduser.getGroup().get(0).getGroupId(), adduser.getGroup().get(0).getGroup_name(), "tbl_groups","group_id","group_name", datasource);		
+
 /**********************************************************Adding data in tbl_user**************************************************/
-			PreparedStatement ps1 = conn.prepareStatement(insertUser);
-			ps1.setString(1, adduser.getUserName());
-			ps1.setString(2, adduser.getFirstname());
-			ps1.setString(3, adduser.getLastname());
-			ps1.setString(4, adduser.getPhonenumber());
-			ps1.setString(5, adduser.getEmail());
-			ps1.setString(6, adduser.getRoleId());
-			ps1.setString(7, adduser.getIsActive());
-			ps1.setString(8, adduser.getDefaultScreen());
-			ps1.setString(9, currentTimestamp.toString());
-			ps1.setInt(10, user);
-			ps1.executeUpdate();//executing query
-			ps1.close();
+			ps = conn.prepareStatement(insertUser);
+			ps.setString(1, adduser.getUserName());
+			ps.setString(2, adduser.getFirstname());
+			ps.setString(3, adduser.getLastname());
+			ps.setString(4, adduser.getPhonenumber());
+			ps.setString(5, adduser.getEmail());
+			ps.setString(6, adduser.getIsActive());
+			ps.setString(7, adduser.getDefaultScreen());
+			ps.setString(8, currentTimestamp.toString());
+			ps.setInt(9, user);
+			ps.executeUpdate();//executing query
+			ps.close();
 
 /************************************************Getting current userId from  tbl_user**********************************************/			
-			ps1=conn.prepareStatement(getCurrentUserid);
-			ps1.setString(1, adduser.getEmail());
-			ResultSet rs=ps1.executeQuery();
+			ps=conn.prepareStatement(getCurrentUserid);
+			ps.setString(1, adduser.getEmail());
+			rs=ps.executeQuery();
 			if(rs.next())
 			{
 				userid=rs.getInt(1);
 			}
 			rs.close();
-			ps1.close();
+			ps.close();
 			
 /**********************************************************Adding data in tbl_userMenulist**************************************************/
 			for(int i=0;i<menusize;i++)
 			{
-				PreparedStatement ps2 = conn.prepareStatement(userMenulist);
-			    ps2.setInt(1, userid);
-			    ps2.setString(2, adduser.getMenulist().get(i).getId());
-			    ps2.setString(3, adduser.getMenulist().get(i).getDescription());
-			    ps2.setString(4, adduser.getMenulist().get(i).getValue());
-			    ps2.setTimestamp(5, currentTimestamp);
-			    ps2.setInt(6,user);
-			    ps2.executeUpdate();//executing query
-			    ps2.close();
+				ps = conn.prepareStatement(userMenulist);
+			    ps.setInt(1, userid);
+			    ps.setString(2, adduser.getMenulist().get(i).getId());
+			    ps.setString(3, adduser.getMenulist().get(i).getDescription());
+			    ps.setString(4, adduser.getMenulist().get(i).getValue());
+			    ps.setTimestamp(5, currentTimestamp);
+			    ps.setInt(6,user);
+			    ps.executeUpdate();//executing query
+			    ps.close();
 			}
 			
 /**********************************************************Adding data in tbl_userPermissions**************************************************/
@@ -115,32 +131,32 @@ public class UserDaoImpl implements UserDao{
 		    	int size=adduser.getMenulist().get(i).getPermissions().size();
 		    	for(int j=0;j<size;j++)
 		    	{
-		    		PreparedStatement ps3 = conn.prepareStatement(userPermission);
-			    	ps3.setInt(1, userid);
-			    	ps3.setString(2, adduser.getMenulist().get(i).getId());
-			    	ps3.setString(3, adduser.getMenulist().get(i).getPermissions().get(j).getId());
-			    	ps3.setString(4, adduser.getMenulist().get(i).getPermissions().get(j).getDescription());
-			    	ps3.setString(5, adduser.getMenulist().get(i).getPermissions().get(j).getOverriddenValue());
-			    	ps3.setTimestamp(6, currentTimestamp);
-			    	ps3.setInt(7,user);
-			    	ps3.executeUpdate();//executing query
-			    	ps3.close();
+		    		ps = conn.prepareStatement(userPermission);
+			    	ps.setInt(1, userid);
+			    	ps.setString(2, adduser.getMenulist().get(i).getId());
+			    	ps.setString(3, adduser.getMenulist().get(i).getPermissions().get(j).getId());
+			    	ps.setString(4, adduser.getMenulist().get(i).getPermissions().get(j).getDescription());
+			    	ps.setString(5, adduser.getMenulist().get(i).getPermissions().get(j).getOverriddenValue());
+			    	ps.setTimestamp(6, currentTimestamp);
+			    	ps.setInt(7,user);
+			    	ps.executeUpdate();//executing query
+			    	ps.close();
 		    	}
 		    }
 				
 /**********************************************************Adding data in tbl_user_groups******************************************************/
-			PreparedStatement ps4=conn.prepareStatement(userGroup);
-			ps4.setString(1, adduser.getGroup().get(0).getGroupId());
-			ps4.setInt(2, userid);
-			ps4.executeUpdate();
-			ps4.close();
+			ps=conn.prepareStatement(userGroup);
+			ps.setString(1, adduser.getGroup().get(0).getGroupId());
+			ps.setInt(2, userid);
+			ps.executeUpdate();
+			ps.close();
 	
 /*************************************************************Adding data in user_role********************************************************/
-			PreparedStatement ps5=conn.prepareStatement(userRole);
-			ps5.setString(1, adduser.getRoleId());
-			ps5.setInt(2, userid);
-			ps5.executeUpdate();
-			ps5.close();
+			ps=conn.prepareStatement(userRole);
+			ps.setString(1, adduser.getRoleId());
+			ps.setInt(2, userid);
+			ps.executeUpdate();
+			ps.close();
 			conn.commit();
 			conn.close();
 			
@@ -191,7 +207,7 @@ public class UserDaoImpl implements UserDao{
 	     */
 		
 		String getCurrentUserid="SELECT user_id from tbl_user WHERE email=? and username=?";//throws exception if email and pathUsername does not map to same entity
-		String editUser = "UPDATE tbl_user SET username=?,f_name=?,l_name=?,phonenumber=?,roleId=?,isActive=?,defaultScreen=?,updatedon=?,updatedby= ? WHERE email=?";
+		String editUser = "UPDATE tbl_user SET username=?,f_name=?,l_name=?,phonenumber=?,isActive=?,defaultScreen=?,updatedon=?,updatedby= ? WHERE email=?";
 		String editMenulist = "INSERT into tbl_usermenulist(user_id,id,description,value,createdon,createdby) VALUES (?, ?, ? , ?, ?, ?) ON DUPLICATE KEY UPDATE description=?,value=?,updatedon=?,updatedby=?";
 		String editPermission = "INSERT into tbl_userpermission(user_id,menuid,id,description,value,createdon,createdby) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE description=?,value=?,updatedon=?,updatedby=?";
 		String edituserGroup = "UPDATE tbl_user_groups SET group_id=? WHERE user_id=?";
@@ -235,12 +251,11 @@ public class UserDaoImpl implements UserDao{
 			ps1.setString(2, adduser.getFirstname());
 			ps1.setString(3, adduser.getLastname());
 			ps1.setString(4, adduser.getPhonenumber());
-			ps1.setString(5, adduser.getRoleId());
-			ps1.setString(6, adduser.getIsActive());
-			ps1.setString(7, adduser.getDefaultScreen());
-			ps1.setString(8, currentTimestamp.toString());
-			ps1.setInt(9, user);
-			ps1.setString(10, adduser.getEmail());
+			ps1.setString(5, adduser.getIsActive());
+			ps1.setString(6, adduser.getDefaultScreen());
+			ps1.setString(7, currentTimestamp.toString());
+			ps1.setInt(8, user);
+			ps1.setString(9, adduser.getEmail());
 			ps1.executeUpdate();//executing query
 			ps1.close();
 			
