@@ -4,7 +4,7 @@
  * @time 10:37 AM
  *
  */
-//main service for controlling and manipulating database based on the the json input from user
+//main service for controlling and manipulating database based on the the JSON input from user
 //
 package bahriskcanvas;
 
@@ -49,9 +49,9 @@ public class CreateRoleService
 	    /**
 	     * Three tables are managed for various field of input
 	     */
-		String sql1 = "INSERT INTO tbl_createrole (roleid,roleName,isActive,roleType,defaultScreen,createdon,createdby) VALUES (?, ?, ?, ?, ? , ?, ?)";
-		String sql2 = "INSERT INTO tbl_menulist (roleid,id,description,value,createdon,createdby) VALUES (?, ?, ? , ?, ?, ?)";
-		String sql3 = "INSERT INTO tbl_permissions (roleid,menuid,id,description,value,createdon,createdby) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		String createrole = "INSERT INTO tbl_createrole (roleid,roleName,isActive,roleType,defaultScreen,createdon,createdby) VALUES (?, ?, ?, ?, ? , ?, ?)";
+		String addmenulist = "INSERT INTO tbl_menulist (roleid,id,description,value,createdon,createdby) VALUES (?, ?, ? , ?, ?, ?)";
+		String addpermission = "INSERT INTO tbl_permissions (roleid,menuid,id,description,value,createdon,createdby) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		getuniqueid uniqueid=new getuniqueid();
 		String id=uniqueid.uniqueid();//getting unique ten digit id
 		String roleid="ROLE_"+createinput.getRoleName()+"_"+id;//unique roleId for each new user
@@ -67,8 +67,10 @@ public class CreateRoleService
 
 		try 
 		{
+			/*************************************************Adding data to tbl_createrole******************************************************/
 			conn = datasource.getConnection();//creating connection to database
-			PreparedStatement ps1 = conn.prepareStatement(sql1);
+			conn.setAutoCommit(false);
+			PreparedStatement ps1 = conn.prepareStatement(createrole);
 			ps1.setString(1, roleid);
 			ps1.setString(2, createinput.getRoleName());
 			ps1.setString(3, createinput.getIsActive());
@@ -77,10 +79,12 @@ public class CreateRoleService
 			ps1.setTimestamp(6, currentTimestamp);
 			ps1.setString(7,user);
 			ps1.executeUpdate();//executing query
+			ps1.close();
 
+			/*************************************************Adding data to tbl_menulist******************************************************/
+			ps1 = conn.prepareStatement(addmenulist);
 			for(int i=0;i<menusize;i++)
 			{
-		    ps1 = conn.prepareStatement(sql2);
 		    ps1.setString(1, roleid);
 		    ps1.setString(2, createinput.getMenulist().get(i).getId());
 		    ps1.setString(3, createinput.getMenulist().get(i).getDescription());
@@ -89,13 +93,15 @@ public class CreateRoleService
 		    ps1.setString(6,user);
 		    ps1.executeUpdate();//executing query
 			}
+			ps1.close();
 		    
-		    for(int i=0;i<menusize;i++)//for storing multiple permissions related to same menuList in database
+			/*************************************************Adding data to tbl_permissions******************************************************/
+			ps1 = conn.prepareStatement(addpermission);
+			for(int i=0;i<menusize;i++)//for storing multiple permissions related to same menuList in database
 		    {
 		    	int size=createinput.getMenulist().get(i).getPermissions().size();
 		    	for(int j=0;j<size;j++)
 		    	{
-		    	ps1 = conn.prepareStatement(sql3);
 		    	ps1.setString(1, roleid);
 		    	ps1.setString(2, createinput.getMenulist().get(i).getId());
 		    	ps1.setString(3, createinput.getMenulist().get(i).getPermissions().get(j).getId());
@@ -104,38 +110,28 @@ public class CreateRoleService
 		    	ps1.setTimestamp(6, currentTimestamp);
 		    	ps1.setString(7,user);
 		    	ps1.executeUpdate();//executing query
-		    	ps1.close();
 		    	}
 		    }
+			ps1.close();
+			
+		    conn.commit();//Committing all transactions
+		    conn.close();
 		    output.setSuccess(true);
 		    success=output.getSuccess();
 		    return success;    
 		} 
 		catch (SQLException e) 
 		{
+			conn.rollback();
 		    throw new customException(e.getErrorCode(),e.getMessage());//throwing custom exception
 		} 
-		finally 
-		{
-			if (conn != null) 
-			{
-				try
-				{
-					conn.close();
-				} 
-				catch (SQLException e) 
-				{
-					throw new customException(e.getErrorCode(),e.getMessage());//throwing custom exception
-				}
-			}
-		}
 		
 	}
 
 /*****************************************************************************************************************************************************/	
 /*******************************************************       FOR EDITING ROLE      *****************************************************************/
 /*****************************************************************************************************************************************************/
-	public boolean update(CreateRoleInput roleinput,int size,DatabaseConnection conndata) throws SQLException
+	public boolean update(CreateRoleInput roleinput,int menusize,DatabaseConnection conndata) throws SQLException
 	{
 
 		Boolean success;//variable for sending true/false as output
@@ -153,10 +149,10 @@ public class CreateRoleService
 	    /**
 	     * Three tables are managed for various field of input
 	     */
-		String sql1 = "UPDATE tbl_createrole SET roleName=?,isActive=?,defaultScreen=?,updatedon=?,updatedby=? WHERE roleid=?";
-		String sql2 = "UPDATE tbl_menulist SET description=?,value=?,updatedon=?,updatedby=? WHERE roleid=?";
-		String sql3 = "UPDATE tbl_permissions SET description=?,value=?,updatedon=?,updatedby=? WHERE roleid=?";
-		String sql4=  "UPDATE tbl_createrole SET roleId=? WHERE roleName=?";
+		String updaterole = "UPDATE tbl_createrole SET roleName=?,isActive=?,defaultScreen=?,updatedon=?,updatedby=? WHERE roleid=?";
+		String updateMenulist = "INSERT INTO tbl_menulist (roleid,id,description,value,createdon,createdby) VALUES (?, ?, ? , ?, ?, ?) ON DUPLICATE KEY UPDATE description=?,value=?,updatedon=?,updatedby=?";
+		String updatePermissions = "INSERT INTO tbl_permissions (roleid,menuid,id,description,value,createdon,createdby) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE description=?,value=?,updatedon=?,updatedby=?";
+		String updateRoleId=  "UPDATE tbl_createrole SET roleId=? WHERE roleName=?";
 		
 		getalf_ticket getalfticket=new getalf_ticket();//getting current user alf_ticket
 		String user=getalfticket.getticket(roleinput.getAlf_ticket(), datasource, conn);
@@ -170,8 +166,10 @@ public class CreateRoleService
 
 		try 
 		{
+			/*************************************************Adding data to tbl_createrole******************************************************/
 			conn = datasource.getConnection();//creating connection to database
-			PreparedStatement ps1 = conn.prepareStatement(sql1);
+			conn.setAutoCommit(false);
+			PreparedStatement ps1 = conn.prepareStatement(updaterole);
 			ps1.setString(1, roleinput.getRoleName());
 			ps1.setString(2, roleinput.getIsActive());
 			ps1.setString(3, roleinput.getDefaultScreen());
@@ -179,55 +177,68 @@ public class CreateRoleService
 			ps1.setString(5,user);
 			ps1.setString(6, roleinput.getRoleId());
 			ps1.executeUpdate();//executing query
+			ps1.close();
 		    
-		    ps1 = conn.prepareStatement(sql2);
-		    ps1.setString(1, roleinput.getMenulist().get(0).getDescription());
-		    ps1.setString(2, roleinput.getMenulist().get(0).getValue());
-		    ps1.setTimestamp(3, currentTimestamp);
-		    ps1.setString(4,user);
-		    ps1.setString(5, roleinput.getRoleId());
+			/*************************************************Adding data to tbl_menulist******************************************************/
+		    for(int i=0;i<menusize;i++)
+			{
+		    ps1 = conn.prepareStatement(updateMenulist);
+		    ps1.setString(1, roleid);
+		    ps1.setString(2, roleinput.getMenulist().get(i).getId());
+		    ps1.setString(3, roleinput.getMenulist().get(i).getDescription());
+		    ps1.setString(4, roleinput.getMenulist().get(i).getValue());
+		    ps1.setTimestamp(5, currentTimestamp);
+		    ps1.setString(6,user);
+		    ps1.setString(7, roleinput.getMenulist().get(i).getDescription());
+		    ps1.setString(8, roleinput.getMenulist().get(i).getValue());
+		    ps1.setTimestamp(9, currentTimestamp);
+		    ps1.setString(10,user);
 		    ps1.executeUpdate();//executing query
+		    ps1.close();
+			}
 		    
-		    for(int i=0;i<size;i++)//for storing multiple permissions related to same menuList in database
+		    /*************************************************Adding data to tbl_permissions******************************************************/
+	    	ps1 = conn.prepareStatement(updatePermissions);
+		    for(int i=0;i<menusize;i++)//for storing multiple permissions related to same menuList in database
 		    {
-		    	ps1 = conn.prepareStatement(sql3);
-		    	ps1.setString(1, roleinput.getMenulist().get(0).getPermissions().get(i).getDescription());
-		    	ps1.setString(2, roleinput.getMenulist().get(0).getPermissions().get(i).getValue());
-		    	ps1.setTimestamp(3, currentTimestamp);
-		    	ps1.setString(4,user);
-		    	ps1.setString(5, roleinput.getRoleId());
+		    	int size=roleinput.getMenulist().get(i).getPermissions().size();
+		    	for(int j=0;j<size;j++)
+		    	{
+		    	ps1.setString(1, roleid);
+		    	ps1.setString(2, roleinput.getMenulist().get(i).getId());
+		    	ps1.setString(3, roleinput.getMenulist().get(i).getPermissions().get(j).getId());
+		    	ps1.setString(4, roleinput.getMenulist().get(i).getPermissions().get(j).getDescription());
+		    	ps1.setString(5, roleinput.getMenulist().get(i).getPermissions().get(j).getValue());
+		    	ps1.setTimestamp(6, currentTimestamp);
+		    	ps1.setString(7,user);
+		    	ps1.setString(8, roleinput.getMenulist().get(i).getPermissions().get(j).getDescription());
+		    	ps1.setString(9, roleinput.getMenulist().get(i).getPermissions().get(j).getValue());
+		    	ps1.setTimestamp(10, currentTimestamp);
+		    	ps1.setString(11,user);
 		    	ps1.executeUpdate();//executing query
+		    	}
 		    }
+		    ps1.close();
 		    
+		    /************************************************Renaming roleId******************************************************/
 		    roleinput.setRoleId(newroleid.toString());//setting new roleId
-		    ps1 = conn.prepareStatement(sql4);//for renaming roleId as per changed roleName
+		    ps1 = conn.prepareStatement(updateRoleId);//for renaming roleId as per changed roleName
 		    ps1.setString(1, roleinput.getRoleId() );
 		    ps1.setString(2, roleinput.getRoleName());
 		    ps1.executeUpdate();//executing query
 		    ps1.close();
 		    
+		    conn.commit();//Committing all transactions
+		    conn.close();
 		    output.setSuccess(true);
 		    success=output.getSuccess();
 		    return success;    
 		} 
 		catch (SQLException e) 
 		{
+			conn.rollback();
 		    throw new customException(e.getErrorCode(),e.getMessage());//throwing custom exception
 		} 
-		finally 
-		{
-			if (conn != null) 
-			{
-				try
-				{
-					conn.close();
-				} 
-				catch (SQLException e) 
-				{
-					throw new customException(e.getErrorCode(),e.getMessage());//throwing custom exception
-				}
-			}
-		}
 	}
 /*****************************************************************************************************************************************************/	
 /*******************************************************       FOR LISTING ROLE      *****************************************************************/
@@ -253,19 +264,21 @@ public class CreateRoleService
 		/**
 		 * Three tables are managed for RoleService so following queries on three tables
 		 */
-		String sql="SELECT isActive,roleName,roleId,assignedUsers,defaultScreen from tbl_createrole where isActive='true'";
-		String sql1="SELECT isActive,roleName,roleId,assignedUsers,defaultScreen from tbl_createrole";
-		String sql2="SELECT id,description,value from tbl_menulist WHERE roleId=?";
-		String sql3="SELECT id,description,value from tbl_permissions WHERE roleId=? AND menuid=?";
+		String listOnlyActive="SELECT isActive,roleName,roleId,assignedUsers,defaultScreen from tbl_createrole where isActive='true'";
+		String listAll="SELECT isActive,roleName,roleId,assignedUsers,defaultScreen from tbl_createrole";
+		String listMenulist="SELECT id,description,value from tbl_menulist WHERE roleId=?";
+		String listPermissions="SELECT id,description,value from tbl_permissions WHERE roleId=? AND menuid=?";
 		
 		try{
 			int index,menulistFirstIndex=0,menulistfinalFirstIndex=0,permissionFirstIndex=0;
 			conn=datasource.getConnection();
+			conn.setAutoCommit(false);
+			
 			PreparedStatement ps=null;
 			if(excludeInactive.equals("false"))
-		    	{ps=conn.prepareStatement(sql1);}
+		    	{ps=conn.prepareStatement(listAll);}
 			else
-				{ps=conn.prepareStatement(sql);}
+				{ps=conn.prepareStatement(listOnlyActive);}
 /**********************************************       retrieving data related to role     ************************************************************/
 			ResultSet rs=ps.executeQuery();
 			while(rs.next()){
@@ -274,7 +287,7 @@ public class CreateRoleService
 			}
 			rs.close();		
 /*********************************************     retrieving data related to menuLists     **********************************************************/
-		ps=conn.prepareStatement(sql2);
+		    ps=conn.prepareStatement(listMenulist);
 		    for(index=0;index<roleidlist.size();index++){
 				ps.setString(1, roleidlist.get(index));
 				ResultSet rs1=ps.executeQuery();
@@ -290,7 +303,7 @@ public class CreateRoleService
 				rs1.close();
 			}
 /*********************************************     retrieving data related to permissions     ********************************************************/
-			ps=conn.prepareStatement(sql3);
+			ps=conn.prepareStatement(listPermissions);
 			for(index=0;index<roleMenuIdMap.size();index++){
 				int j=roleMenuIdMap.get(roleidlist.get(index)).size();//returns size of an arraylist of menuid's for corresponding key of roleid
 				for(int k=0;k<j;k++){
@@ -310,12 +323,30 @@ public class CreateRoleService
 				menulistfinalFirstIndex=menulistfinal.size();
 			}
 			ps.close();
+			
+			conn.commit();//Committing all transactions
 			conn.close();
 			roles.setRoles(rolelistfinal);//setting final result data to roles for providing required output
+			return roles;
 		}
-		catch(Exception e){
-			System.out.println("exception occured "+e.getMessage());
+		catch (SQLException e) 
+		{
+			conn.rollback();
+		    throw new customException(e.getErrorCode(),e.getMessage());//throwing custom exception
+		} 
+		finally 
+		{
+			if (conn != null) 
+			{
+				try
+				{
+					conn.close();
+				} 
+				catch (SQLException e) 
+				{
+					throw new customException(e.getErrorCode(),e.getMessage());//throwing custom exception
+				}
+			}
 		}
-		return roles;
-		}
+	}
 }

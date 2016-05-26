@@ -73,12 +73,12 @@ public class RoleController
 	 * Type HttpSErvletRequest
 	 * @return success(true/false)
 	 */
-	@RequestMapping(value="/role/edit",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
+	@RequestMapping(value="/role/edit",method=RequestMethod.PUT,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
 	public CreateRoleOutput EditRole(@RequestBody CreateRoleInput editinput,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket)
 	{	
 		editinput.setAlf_ticket(ticket);//setting createdBy property in CreateRoleInput class
 		CreateRoleOutput success=new CreateRoleOutput();
-		int size=editinput.getMenulist().get(0).getPermissions().size();//to get size of the menuList array in input JSON
+		int menusize=editinput.getMenulist().size();//to get size of the menuList array in input JSON
 		
 		VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
 	    verify.isboolean(editinput);
@@ -87,7 +87,7 @@ public class RoleController
 		conndata=GetConfig.getConnection(req);//Bean for setting database configurations
 		try 
 		{
-			boolean output=createroleservice.update(editinput,size,conndata);
+			boolean output=createroleservice.update(editinput,menusize,conndata);
 			success.setSuccess(output);
 		} 
 		catch (SQLException e) 

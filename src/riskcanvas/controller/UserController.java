@@ -66,7 +66,7 @@ public class UserController {
 		 * @return success(true/false)
 		 */
 		//Method for editing user and mapping the incoming JSON request to AddUser class
-		@RequestMapping(value="/edit/{userName}",method=RequestMethod.POST,consumes="application/json")
+		@RequestMapping(value="/edit/{userName}",method=RequestMethod.PUT,consumes="application/json")
 		public Success EditUser(@RequestBody AddUser adduser,@PathVariable String userName,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) 
 		{		
 			adduser.setAlf_ticket(ticket);

@@ -7,15 +7,16 @@ public class VerifyBoolean {
 	{
 		int i,j;
 		String isActive=roleinput.getIsActive();
-		if(isActive=="true"||isActive=="false")
+		System.out.println("IsActive="+isActive);
+		if(isActive.equals("true")||isActive.equals("false"))
 			{}
 		else
-			throw new customException(400,"Invalid Data:Only boolean values allowed for feild "+"isActive");
+			throw new customException(400,"Invalid Data:Only boolean values allowed for feild isActive");
 		
 		int menusize=roleinput.getMenulist().size();
 		for(i=0;i<menusize;i++)
 		{
-		if((roleinput.getMenulist().get(i).getValue()=="true")||(roleinput.getMenulist().get(i).getValue()=="false"))
+		if((roleinput.getMenulist().get(i).getValue().equals("true"))||(roleinput.getMenulist().get(i).getValue().equals("false")))
 			{}
 		else
 			throw new customException(400,"Invalid Data:Only boolean values allowed for feild value in menuList");
@@ -24,10 +25,10 @@ public class VerifyBoolean {
 		
 		for(i=0;i<menusize;i++)
 		{
-			int permissionsize=roleinput.getMenulist().get(0).getPermissions().size();
+			int permissionsize=roleinput.getMenulist().get(i).getPermissions().size();
 			for(j=0;j<permissionsize;j++)
 			{
-					if((roleinput.getMenulist().get(i).getPermissions().get(j).getValue()=="true")||(roleinput.getMenulist().get(i).getPermissions().get(j).getValue()=="false"))
+					if((roleinput.getMenulist().get(i).getPermissions().get(j).getValue().equals("true"))||(roleinput.getMenulist().get(i).getPermissions().get(j).getValue().equals("false")))
 						{}
 					else
 						throw new customException(400,"Invalid Data:Only boolean values allowed for feild value in permissions");

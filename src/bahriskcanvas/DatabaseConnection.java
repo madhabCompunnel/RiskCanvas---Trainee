@@ -12,7 +12,6 @@ public class DatabaseConnection {
 	public void setDatasource(DataSource datasource)
 	{
 		this.datasource = datasource;
-		System.out.println(datasource.toString());
 	}
 	/**
 	 * @return
