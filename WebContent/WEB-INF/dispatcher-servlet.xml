@@ -19,8 +19,8 @@
 	<bean class="utils.CORSInterceptor">
 			<property name="allowedOrigins" value="*" />
 			<property name="allowedMethods" value="GET,POST,HEAD,OPTIONS,PUT,DELETE" />
-			<property name="allowedHeaders" value="Content-Type,X-Requested-With,accept,ticket,Origin,Access-Control-Request-Method,Access-Control-Request-Headers" />
-			<property name="exposedHeaders" value="Access-Control-Allow-Origin,Access-Control-Allow-Credentials" />
+			<property name="allowedHeaders" value="Content-Type,Authorization,X-Requested-With,accept,alfTicket,Origin,Access-Control-Request-Method,Access-Control-Request-Headers" />
+			<property name="exposedHeaders" value="Access-Control-Allow-Origin,Access-Control-Allow-Credentials,Access-Control-Allow-Headers" />
 			<property name="allowCredentials" value="true" />
 			<property name="maxAge" value="3600" />
 		</bean>

@@ -14,20 +14,25 @@ import riskcanvas.exception.CustomException;
  */
 public class CheckTicket {
 	int user;
-	public int getticket(String alf_ticket,Connection conn) throws SQLException {
+	public int getticket(String alf_ticket,Connection conn) {
 		String sql1 = "SELECT user_id from tbl_user_ticket WHERE alf_ticket='"+alf_ticket+"'";
-	
-		PreparedStatement ps5 = conn.prepareStatement(sql1);
-		ResultSet rs = ps5.executeQuery();//executing query
-		if(rs.next())
-		{
-		user=rs.getInt(1);
-		return user;
+		try{
+			PreparedStatement ps5 = conn.prepareStatement(sql1);
+			ResultSet rs = ps5.executeQuery();//executing query
+			if(rs.next())
+			{
+			user=rs.getInt(1);
+			return user;
+			}
+			else
+			{
+				throw new CustomException(505,"No such token id exists :"+alf_ticket);
+			}
 		}
-		else
+		catch(SQLException e)
 		{
-			throw new CustomException(505,"No such token id exists :"+alf_ticket);
-		}
-	}
+			throw new CustomException(e.getErrorCode(),e.getMessage());
+		}	
+	}	
 }
 

@@ -9,9 +9,9 @@ import java.util.Calendar;
 
 import javax.sql.DataSource;
 
+import utils.CheckTicket;
 import utils.CheckValues;
 import utils.RestrictChange;
-import bahriskcanvas.getalf_ticket;
 import riskcanvas.dao.DatabaseConnection;
 import riskcanvas.exception.CustomException;
 import riskcanvas.model.AddUser;
@@ -19,6 +19,7 @@ import riskcanvas.model.AddUser;
 public class UserDaoImpl implements UserDao{
 	private DataSource datasource;//for getting database configurations from DatabaseConnection class
 	Connection conn=null;//Connection String
+	
 	int userid;
 	Boolean success=false;
 	CheckValues value=new CheckValues();
@@ -56,17 +57,18 @@ public class UserDaoImpl implements UserDao{
 		java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
 	
 		try {
+			value.checkNull(adduser.getAlf_ticket(),"Alf_ticket");
 	        value.checkExist(adduser.getEmail(),"tbl_user","email",datasource);
 	        value.checkExist(adduser.getUserName(),"tbl_user","username",datasource);
 	        value.checkNotExist(adduser.getRoleId(),"tbl_createrole","roleId",datasource);
 	        value.checkNotExist(adduser.getGroup().get(0).getGroupId(),"tbl_groups","group_id",datasource);
 	        value.checkNotExist(adduser.getGroup().get(0).getGroup_name(),"tbl_groups","group_name",datasource);
 	        value.checkMapping(adduser.getGroup().get(0).getGroupId(), adduser.getGroup().get(0).getGroup_name(), "tbl_groups","group_id","group_name", datasource);
-			getalf_ticket getalfticket=new getalf_ticket();//getting current user alf_ticket
-			String user=getalfticket.getticket(adduser.getAlf_ticket(), datasource, conn);
+			CheckTicket checkTicket=new CheckTicket();
 			
 			conn = datasource.getConnection();//creating connection to database
 			conn.setAutoCommit(false);
+			int user=checkTicket.getticket(adduser.getAlf_ticket(), conn);
 /**********************************************************Adding data in tbl_user**************************************************/
 			PreparedStatement ps1 = conn.prepareStatement(insertUser);
 			ps1.setString(1, adduser.getUserName());
@@ -78,7 +80,7 @@ public class UserDaoImpl implements UserDao{
 			ps1.setString(7, adduser.getIsActive());
 			ps1.setString(8, adduser.getDefaultScreen());
 			ps1.setString(9, currentTimestamp.toString());
-			ps1.setString(10, user);
+			ps1.setInt(10, user);
 			ps1.executeUpdate();//executing query
 			ps1.close();
 
@@ -102,7 +104,7 @@ public class UserDaoImpl implements UserDao{
 			    ps2.setString(3, adduser.getMenulist().get(i).getDescription());
 			    ps2.setString(4, adduser.getMenulist().get(i).getValue());
 			    ps2.setTimestamp(5, currentTimestamp);
-			    ps2.setString(6,user);
+			    ps2.setInt(6,user);
 			    ps2.executeUpdate();//executing query
 			    ps2.close();
 			}
@@ -120,7 +122,7 @@ public class UserDaoImpl implements UserDao{
 			    	ps3.setString(4, adduser.getMenulist().get(i).getPermissions().get(j).getDescription());
 			    	ps3.setString(5, adduser.getMenulist().get(i).getPermissions().get(j).getOverriddenValue());
 			    	ps3.setTimestamp(6, currentTimestamp);
-			    	ps3.setString(7,user);
+			    	ps3.setInt(7,user);
 			    	ps3.executeUpdate();//executing query
 			    	ps3.close();
 		    	}
@@ -203,15 +205,16 @@ public class UserDaoImpl implements UserDao{
 		java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
 		
 		try{
+			value.checkNull(adduser.getAlf_ticket(),"Alf_Ticket");
 	        value.checkNotExist(adduser.getRoleId(),"tbl_createrole","roleId",datasource);
 	        value.checkNotExist(adduser.getGroup().get(0).getGroupId(),"tbl_groups","group_id",datasource);
 	        value.checkNotExist(adduser.getGroup().get(0).getGroup_name(),"tbl_groups","group_name",datasource);
 	        value.checkMapping(adduser.getGroup().get(0).getGroupId(), adduser.getGroup().get(0).getGroup_name(), "tbl_groups", "group_id", "group_name", datasource);
-			getalf_ticket getalfticket=new getalf_ticket();//getting current user alf_ticket
-			String user=getalfticket.getticket(adduser.getAlf_ticket(), datasource, conn);
+	        CheckTicket checkTicket=new CheckTicket();
 			
 			conn = datasource.getConnection();//creating connection to database
 			conn.setAutoCommit(false);//all changes to database will happen if every query executes or none will happen
+			int user=checkTicket.getticket(adduser.getAlf_ticket(), conn);
 /************************************************Getting current userId from  tbl_user**********************************************/			
 			PreparedStatement ps1=conn.prepareStatement(getCurrentUserid);
 			ps1.setString(1, adduser.getEmail());
@@ -236,7 +239,7 @@ public class UserDaoImpl implements UserDao{
 			ps1.setString(6, adduser.getIsActive());
 			ps1.setString(7, adduser.getDefaultScreen());
 			ps1.setString(8, currentTimestamp.toString());
-			ps1.setString(9, user);
+			ps1.setInt(9, user);
 			ps1.setString(10, adduser.getEmail());
 			ps1.executeUpdate();//executing query
 			ps1.close();
@@ -250,11 +253,11 @@ public class UserDaoImpl implements UserDao{
 			    ps1.setString(3, adduser.getMenulist().get(i).getDescription());
 			    ps1.setString(4, adduser.getMenulist().get(i).getValue());
 			    ps1.setTimestamp(5, currentTimestamp);
-			    ps1.setString(6,user);
+			    ps1.setInt(6,user);
 			    ps1.setString(7, adduser.getMenulist().get(i).getDescription());
 			    ps1.setString(8, adduser.getMenulist().get(i).getValue());
 			    ps1.setTimestamp(9, currentTimestamp);
-			    ps1.setString(10,user);
+			    ps1.setInt(10,user);
 			    ps1.executeUpdate();//executing query
 			    ps1.close();
 			}
@@ -272,11 +275,11 @@ public class UserDaoImpl implements UserDao{
 			    	ps1.setString(4, adduser.getMenulist().get(i).getPermissions().get(j).getDescription());
 			    	ps1.setString(5, adduser.getMenulist().get(i).getPermissions().get(j).getOverriddenValue());
 			    	ps1.setTimestamp(6, currentTimestamp);
-			    	ps1.setString(7,user);
+			    	ps1.setInt(7,user);
 			    	ps1.setString(8, adduser.getMenulist().get(i).getPermissions().get(j).getDescription());
 			    	ps1.setString(9, adduser.getMenulist().get(i).getPermissions().get(j).getOverriddenValue());
 			    	ps1.setTimestamp(10, currentTimestamp);
-			    	ps1.setString(11,user);
+			    	ps1.setInt(11,user);
 			    	ps1.executeUpdate();//executing query
 			    	ps1.close();
 		    	}

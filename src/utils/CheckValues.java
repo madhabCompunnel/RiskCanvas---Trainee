@@ -100,4 +100,12 @@ public class CheckValues {
 			throw new CustomException(e.getErrorCode(),e.getMessage());
 		}
 	}
+	
+	public void checkNull(String toCheck,String toDisplay)
+	{
+		if(toCheck==null||toCheck.isEmpty())
+		{
+			throw new CustomException(505,toDisplay+" is empty or null");
+		}
+	}
 }

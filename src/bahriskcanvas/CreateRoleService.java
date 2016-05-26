@@ -23,12 +23,16 @@ import bahriskcanvas.CreateRoleOutput;
 import bahriskcanvas.customException;
 import bahriskcanvas.getalf_ticket;
 
+import utils.CheckValues;
+
 
 public class CreateRoleService 
 {
 	private DataSource datasource;//Spring's own class for setting database related configuration in Beans.xml file
 
 	Connection conn =null;//Connection string
+	
+	CheckValues value=new CheckValues();
 	/**
 	 * @param createinput
 	 * @param size
@@ -43,6 +47,7 @@ public class CreateRoleService
 	{
 		Boolean success;
 		datasource=conndata.getDatasource();
+		value.checkNull(createinput.getAlf_ticket(),"Alf_ticket");//check if ticket is null
 		CheckRoleName checkrolename=new CheckRoleName();//method for checking if roleName already exists or if roleId(if already exists) is legitimate
 		checkrolename.CheckAlreadyExist(null,createinput.getRoleName(),datasource);
 		
@@ -136,6 +141,8 @@ public class CreateRoleService
 
 		Boolean success;//variable for sending true/false as output
 		datasource=conndata.getDatasource();
+		
+		value.checkNull(roleinput.getAlf_ticket(),"Alf_ticket");//check if ticket is null
 		CheckRoleName checkrolename=new CheckRoleName();//method for checking if roleName already exists or if roleId is legitimate
 		checkrolename.CheckAlreadyExist(roleinput.getRoleId(),roleinput.getRoleName(),datasource);
 		/*************replacing roleName substring in roleId to match the new roleName***************/
@@ -247,6 +254,8 @@ public class CreateRoleService
 	public Roles list(String excludeInactive,DatabaseConnection conndata,String ticket) throws SQLException
 	{
 		datasource=conndata.getDatasource();
+		
+		value.checkNull(ticket,"Alf_ticket");
 		getalf_ticket getalfticket=new getalf_ticket();//getting current user alf_ticket
 		@SuppressWarnings("unused")
 		String user=getalfticket.getticket(ticket, datasource, conn);

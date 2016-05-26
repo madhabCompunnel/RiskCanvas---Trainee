@@ -40,7 +40,7 @@ public class RoleController
 	 * @return success(true/false)
 	 */
 	@RequestMapping(value="/role/create",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
-	public CreateRoleOutput RegisterRole(@RequestBody CreateRoleInput roleinput,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws customException
+	public CreateRoleOutput RegisterRole(@RequestBody CreateRoleInput roleinput,HttpServletRequest req,@RequestHeader(value="alfTicket",required=false) String ticket) throws customException
 	{	
 		roleinput.setAlf_ticket(ticket);//setting createdBy property in CreateRoleInput class
 		CreateRoleOutput success=new CreateRoleOutput();
@@ -74,7 +74,7 @@ public class RoleController
 	 * @return success(true/false)
 	 */
 	@RequestMapping(value="/role/edit",method=RequestMethod.PUT,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
-	public CreateRoleOutput EditRole(@RequestBody CreateRoleInput editinput,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket)
+	public CreateRoleOutput EditRole(@RequestBody CreateRoleInput editinput,HttpServletRequest req,@RequestHeader(value="alfTicket",required=false) String ticket)
 	{	
 		editinput.setAlf_ticket(ticket);//setting createdBy property in CreateRoleInput class
 		CreateRoleOutput success=new CreateRoleOutput();
@@ -110,7 +110,7 @@ public class RoleController
 	 * @throws JSONException 
 	 */
 	@RequestMapping(value="/role/list",method=RequestMethod.POST,consumes="application/json")//Mapping the incoming JSON request to CreateRoleInput class
-	public Roles Register(@RequestBody String excludeInactive,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) throws customException, Exception
+	public Roles Register(@RequestBody String excludeInactive,HttpServletRequest req,@RequestHeader(value="alfTicket",required=false) String ticket) throws customException, Exception
 	{	
 		
 		DatabaseConnection conndata=new DatabaseConnection();

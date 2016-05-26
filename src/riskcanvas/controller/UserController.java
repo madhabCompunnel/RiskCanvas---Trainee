@@ -32,33 +32,31 @@ public class UserController {
 	@Autowired
 	private UserService userservice;
 	DatabaseConnection conndata=new DatabaseConnection();
-/*****************************************************************************************************************************************************/	
-/*****************************************************       FOR CREATING NEW USER      **************************************************************/
-/*****************************************************************************************************************************************************/
+	VerifyBoolean verify=new VerifyBoolean();
+		/*****************************************************************************************************************************************************/	
+		/*****************************************************       FOR CREATING NEW USER      **************************************************************/
+		/*****************************************************************************************************************************************************/
 		/**
 		 * @param adduser
 		 * @param req
 		 * @param ticket
 		 * @return success(true/false)
 		 */
-	//Method for creating new user and mapping the incoming JSON request to AddUser class
+	     //Method for creating new user and mapping the incoming JSON request to AddUser class
 		@RequestMapping(value="/create",method=RequestMethod.POST,consumes="application/json")
-		public Success NewUser(@RequestBody AddUser adduser,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) 
-		{			
+		public Success NewUser(@RequestBody AddUser adduser,HttpServletRequest req,@RequestHeader(value="alfTicket",required=false) String ticket) 
+		{	
+			boolean result=false;		
 			adduser.setAlf_ticket(ticket);
-			boolean result=false;
-			VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
-		    verify.isboolean(adduser);
-		
-			/**********************Setting context for retrieving the configuration file**********************/
+		    verify.isboolean(adduser);//verifying if isActive and value fields carry boolean data or not
 			conndata=GetConfig.getConnection(req);//Bean for setting database configurations
 			result=userservice.add(adduser,conndata);
 	        return new Success(result);
 		}		
 		
-/*****************************************************************************************************************************************************/	
-/*******************************************************       FOR EDITING USER      *****************************************************************/
-/*****************************************************************************************************************************************************/
+		/*****************************************************************************************************************************************************/	
+		/*******************************************************       FOR EDITING USER      *****************************************************************/
+		/*****************************************************************************************************************************************************/
 		/**
 		 * @param adduser
 		 * @param req
@@ -67,14 +65,10 @@ public class UserController {
 		 */
 		//Method for editing user and mapping the incoming JSON request to AddUser class
 		@RequestMapping(value="/edit/{userName}",method=RequestMethod.PUT,consumes="application/json")
-		public Success EditUser(@RequestBody AddUser adduser,@PathVariable String userName,HttpServletRequest req,@RequestHeader(value="alfTicket") String ticket) 
-		{		
+		public Success EditUser(@RequestBody AddUser adduser,@PathVariable String userName,HttpServletRequest req,@RequestHeader(value="alfTicket",required=false) String ticket) 
+		{	boolean result=false;	
 			adduser.setAlf_ticket(ticket);
-			boolean result=false;
-			VerifyBoolean verify=new VerifyBoolean();//verifying if isActive and value fields carry boolean data or not
-		    verify.isboolean(adduser);
-		
-			/**********************Setting context for retrieving the configuration file**********************/
+		    verify.isboolean(adduser);//verifying if isActive and value fields carry boolean data or not
 			conndata=GetConfig.getConnection(req);//Bean for setting database configurations
 			result=userservice.edit(adduser,conndata,userName);
 	        return new Success(result);
