@@ -332,6 +332,7 @@ public class ConnectionClass
 		{
 			con.setAutoCommit(false);
 			children=new ArrayList<String>();
+			children.add(group_id);
 			PreparedStatement ps=con.prepareStatement("select group_id from tbl_groups where parent_id=?");
 			ps.setString(1,group_id);
 			ResultSet rs=ps.executeQuery();
@@ -418,8 +419,8 @@ public class ConnectionClass
 				groupList.add(group);
 			}
 			groups.setGroup(groupList);
-			con.close();
 			return groups;
+			
 		}
 		else
 		{

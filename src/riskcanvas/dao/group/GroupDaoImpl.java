@@ -17,15 +17,14 @@ import utils.CheckTicket;
 public class GroupDaoImpl implements GroupDao 
 {
 	private Connection con;
-	
+	/**
+	 * Method editGroup return true if edit for a group is successful else returns false.
+	 */
 	@Override
 	public boolean editGroup(EditGroup editGroup,HttpServletRequest request,String alfTicket)
 	{
 	try
 	{
-		/*
-	 	* result is set to true if editing group is successful
-	 	*/
 		DatabaseConnection databaseConnection=GetConfig.getConnection(request);
 		con=databaseConnection.getDatasource().getConnection();
 		int user_id=new CheckTicket().getticket(alfTicket, con);
@@ -56,8 +55,9 @@ public class GroupDaoImpl implements GroupDao
 		throw new CustomException(400,e.getMessage());
 	}
 }
-	
-	
+	/**
+	 * Mehtod moveGroup returns true of move group is successful else returns false
+	 */
 	public boolean moveGroup(EditGroup editGroup,HttpServletRequest request,String alfTicket)
 	{
 	try
